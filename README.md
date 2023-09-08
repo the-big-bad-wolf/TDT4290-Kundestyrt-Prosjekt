@@ -1,5 +1,5 @@
 # TDT4290-Kundestyrt-Prosjekt
-Repository for TDT4290 Customer Driven Project - Group 5 - 2023
+Repository for TDT4290 Customer Driven Project - Group 4 - 2023
 
 ## Team members
 
