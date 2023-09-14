@@ -9,7 +9,6 @@ Repository for TDT4290 Customer Driven Project - Group 4 - 2023
 | Elisabeth Krogstad Iversen  |
 | Haakon Liu Selnes  |
 | Mikkel Andreas Ask Guttormsen  |
-| Sebastian August Berg  |
 | Synne Frafjord Moe  |
 
 ## Supervisor
@@ -18,7 +17,7 @@ Repository for TDT4290 Customer Driven Project - Group 4 - 2023
 |------------|
 | Isabella Possaghi   |
 
-## Costumer
+## Customer
 
 | Name       |
 |------------|
