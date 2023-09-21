@@ -3,3 +3,4 @@ Python/Scripts
 Python/pyvenv.cfg
 Python/__pycache__
 Typescript/node_modules
+Typescript/out
