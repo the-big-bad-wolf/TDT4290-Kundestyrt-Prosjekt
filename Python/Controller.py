@@ -14,7 +14,7 @@ print("Serial number: " + my_eyetracker.serial_number)
 
 valid_lpup = [0.5]
 valid_rpup = [0.5]
-baseline = [0]
+baseline = [0,0]
 cognitive_load_array = [] 
 def callback(gaze_data):
     """
@@ -45,9 +45,10 @@ def callback(gaze_data):
     if cognitive_load: # Don't append cogntive load if it is measured to 0
         cognitive_load_array.append(cognitive_load)
     if len(cognitive_load_array)==500: # Establish baseline
-        baseline[0] = establish_reference(cognitive_load_array)
+        baseline[0],baseline[1] = establish_reference(cognitive_load_array)
     if len(cognitive_load_array)%500==0 and len(cognitive_load_array)!=0 and len(cognitive_load_array)!=500: #Make forecast every 500 eytracker update
-        predict_next_direction(cognitive_load_array[-500:],baseline[0])
+        predict_next_direction(cognitive_load_array[-500:],baseline[0],baseline[1])
+
 
 
 my_eyetracker.subscribe_to(tr.EYETRACKER_GAZE_DATA, callback, as_dictionary=True)
