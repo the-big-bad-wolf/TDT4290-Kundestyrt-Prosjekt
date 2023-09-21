@@ -45,8 +45,6 @@ def predict_next_direction(data_array, mean, std):
     model = ARIMA(z_score_array, order=(5, 1, 0))
     model_fit = model.fit()
     forecast = model_fit.forecast(steps=1)[0]
-    print("forecast", forecast)
-
     return (
         "up" if np.abs(forecast) > 2 else "down"
     )  # assuming 0 is mean and 2 is 2 std above
