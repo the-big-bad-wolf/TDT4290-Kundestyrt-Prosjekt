@@ -2,3 +2,4 @@ Python/Lib
 Python/Scripts
 Python/pyvenv.cfg
 Python/__pycache__
+Typescript/extension/node_modules
