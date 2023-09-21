@@ -30,4 +30,4 @@ def predict_next_direction(data_array, reference_avg):
     model_fit = model.fit()
     forecast = model_fit.forecast(steps=1)[0]
 
-    return "up" if forecast > reference_avg else "down"
+    return "up" if forecast > reference_avg+2 else "down"
