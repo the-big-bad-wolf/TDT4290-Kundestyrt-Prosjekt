@@ -69,13 +69,13 @@ def lhipa(d, signal_dur):
     cD_L = pywt.downcoef("d", d, "sym16", "per", level=lof)
 
     # normalize by 1/ 2j
-    cD_H[:] = [x / math.sqrt(2**hif) for x in cD_H]
-    cD_L[:] = [x / math.sqrt(2**lof) for x in cD_L]
+    cD_H[:] = [x / math.sqrt(2 ** hif) for x in cD_H]
+    cD_L[:] = [x / math.sqrt(2 ** lof) for x in cD_L]
 
     # obtain the LH:HF ratio
     cD_LH = cD_L
     for i in range(len(cD_L)):
-        cD_LH[i] = cD_L[i] / cD_H[((2**lof) // (2**hif)) * i]
+        cD_LH[i] = cD_L[i] / cD_H[((2 ** lof) // (2 ** hif)) * i]
 
     # detect modulus maxima , see Duchowski et al. [15]
     cD_LHm = modmax(cD_LH)
@@ -93,4 +93,5 @@ def lhipa(d, signal_dur):
         if math.fabs(cD_LHt[i]) > 0:
             ctr += 1
     LHIPA = float(ctr) / tt
+    print(LHIPA)
     return LHIPA
