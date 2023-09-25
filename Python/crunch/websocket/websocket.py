@@ -10,7 +10,7 @@ import websockets
 from watchgod import awatch
 
 import crunch.util as util
-from SimpleARIMAForecasting import establish_reference, predict_next_direction
+from crunch.websocket.SimpleARIMAForecasting import establish_reference, predict_next_direction
 
 
 async def watcher(queue):
