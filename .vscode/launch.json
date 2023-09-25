@@ -9,12 +9,8 @@
 			"name": "Run Extension",
 			"type": "extensionHost",
 			"request": "launch",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}"
-			],
-			"outFiles": [
-				"${workspaceFolder}/out/**/*.js"
-			],
+			"args": ["--extensionDevelopmentPath=${workspaceFolder}/Typescript"],
+			"outFiles": ["${workspaceFolder}/Typescript/out/**/*.js"],
 			"preLaunchTask": "${defaultBuildTask}"
 		},
 		{
@@ -22,12 +18,10 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}",
-				"--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
+				"--extensionDevelopmentPath=${workspaceFolder}/Typescript",
+				"--extensionTestsPath=${workspaceFolder}/Typescript/out/test/suite/index"
 			],
-			"outFiles": [
-				"${workspaceFolder}/out/test/**/*.js"
-			],
+			"outFiles": ["${workspaceFolder}/Typescript/out/test/**/*.js"],
 			"preLaunchTask": "${defaultBuildTask}"
 		}
 	]
