@@ -10,6 +10,7 @@ import websockets
 from watchgod import awatch
 
 import crunch.util as util
+from crunch.SimpleARIMAForecasting import establish_reference, predict_next_direction
 
 
 async def watcher(queue):
@@ -24,13 +25,17 @@ async def watcher(queue):
     async for changes in awatch('./crunch/output/'):
         for a in changes:
             file_path = a[1]
-            # get last row of changed file
-            df = pd.read_csv(file_path).iloc[-10:,1]
-            # format how we send it to frontend
-            # put it queue so web socket can read
-            print("10 last: ",df.values.astype(float))
+            baseline_items = 10
+            df = pd.read_csv(file_path)
 
-            await queue.put([df])
+            # get last 10 rows of changed file
+            print("10 last: ",df.iloc[-10:,1].values.astype(float))
+            if len(df.index)+1>=baseline_items:
+                mean, std = establish_reference(df.iloc[1:baseline_items,1].values.astype(float))
+                prediction = predict_next_direction(df.iloc[-10:,1].values.astype(float),mean,std)
+                print("Prediction: ", prediction)
+                # put it queue so web socket can read
+                await queue.put({"message": str(prediction)})
 
 
 async def handler(websocket, path, queue):
