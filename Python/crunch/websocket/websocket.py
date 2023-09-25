@@ -25,12 +25,12 @@ async def watcher(queue):
         for a in changes:
             file_path = a[1]
             # get last row of changed file
-            df = pd.read_csv(file_path).iloc[-1]
+            df = pd.read_csv(file_path).iloc[-10:,1]
             # format how we send it to frontend
-            time = datetime.fromtimestamp(int(df.time)).strftime("%H:%M:%S")
-            data = {"name": file_path[16:-4], "value": df.value, "time": time}
             # put it queue so web socket can read
-            await queue.put([data])
+            print("10 last: ",df.values.astype(float))
+
+            await queue.put([df])
 
 
 async def handler(websocket, path, queue):
@@ -48,7 +48,7 @@ def start_websocket():
     which we can put items into to send them over the websocket
     """
     loop = asyncio.get_event_loop()
-    queue = asyncio.Queue(loop=loop)
+    queue = asyncio.Queue()
 
     local_ip = socket.gethostbyname(socket.gethostname())
     ip = "127.0.0.1" if util.config("websocket", "use_localhost") == "True" else local_ip

@@ -11,5 +11,5 @@ def start_processes(mobile):
     p2 = Process(target=start_eyetracker)
     p2.start()
 
-    #start_websocket()
+    start_websocket()
 
