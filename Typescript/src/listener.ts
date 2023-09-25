@@ -1,17 +1,16 @@
-// Importing 'axios' for making HTTP requests.
-import axios from 'axios';
+import * as WebSocket from "ws";
 
-// Defining an async function 'fetchData' to fetch data from the server.
-export async function fetchData(): Promise<{ pupil_size: any; cognitive_load: any; } | null> {
-    try {
-        const response = await axios.get('http://localhost:8080/get_data');
-        
-        // Extract and return the required data.
-        const { pupil_size, cognitive_load } = response.data;
-        return { pupil_size, cognitive_load };
-    } catch (error) {
-        console.error('Error fetching data from Server.py:', error);
-        return null;
-    }
+export function setUp() {
+	console.log("heu");
+	const wss = new WebSocket.Server({ port: 8080 });
+
+	wss.on("connection", ws => {
+		console.log("New client connected");
+	});
+
+	wss.on("message", (message: any) => {
+		console.log(`Received message => ${message}`);
+	});
+
+	console.log("Server started at http://127.0.0.1:8080");
 }
-
