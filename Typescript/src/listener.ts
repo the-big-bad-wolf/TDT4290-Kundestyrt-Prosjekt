@@ -1,16 +1,15 @@
 import * as WebSocket from "ws";
 
 export function setUp() {
-	console.log("heu");
-	const wss = new WebSocket.Server({ port: 8080 });
+	const ws = new WebSocket("ws://localhost:8080");
 
-	wss.on("connection", ws => {
-		console.log("New client connected");
+	ws.on("error", console.error);
+
+	ws.on("open", function open() {
+		ws.send("something");
 	});
 
-	wss.on("message", (message: any) => {
-		console.log(`Received message => ${message}`);
+	ws.on("message", function message(data) {
+		console.log("received: %s", data);
 	});
-
-	console.log("Server started at http://127.0.0.1:8080");
 }
