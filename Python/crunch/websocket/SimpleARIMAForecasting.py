@@ -46,5 +46,5 @@ def predict_next_direction(data_array, mean, std):
     model_fit = model.fit()
     forecast = model_fit.forecast(steps=1)[0]
     return (
-        True if np.abs(forecast) > 2 else False
+        (forecast, True) if np.abs(forecast) > 2 else (forecast,False)
     )  # assuming 0 is mean and 2 is 2 std above

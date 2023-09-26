@@ -32,10 +32,10 @@ async def watcher(queue):
             print("10 last: ",df.iloc[-10:,1].values.astype(float))
             if len(df.index)+1>=baseline_items:
                 mean, std = establish_reference(df.iloc[1:baseline_items,1].values.astype(float))
-                prediction = predict_next_direction(df.iloc[-10:,1].values.astype(float),mean,std)
-                print("Prediction: ", prediction)
+                forecast, need_help = predict_next_direction(df.iloc[-10:,1].values.astype(float),mean,std)
+                print("Prediction: ", forecast)
                 # put it queue so web socket can read
-                await queue.put({"message": str(prediction)})
+                await queue.put({"Current cognitive load":str(df.iloc[-1,1].astype(float)),"Forecasted cognitive load":str(forecast), "Need help": str(need_help)})
 
 
 async def handler(websocket, path, queue):
