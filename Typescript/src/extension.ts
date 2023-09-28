@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { fetchData } from "./listener";
+import { setUp } from "./listener";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -15,21 +15,38 @@ export function activate(context: vscode.ExtensionContext) {
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
-  let disposable = vscode.commands.registerCommand(
+  const disposable = vscode.commands.registerCommand(
     "extension.showData",
-    async () => {
+    () => {
       // The code you place here will be executed every time your command is executed
       // Display a message box to the user
-      const message = await fetchData();
-      if (message) {
-        vscode.window.showInformationMessage(message);
-      } else {
-        vscode.window.showErrorMessage("Failed to fetch data from Server.py.");
-      }
-      vscode.window.showInformationMessage("Now logging changes in open file");
-    }
+      setUp();
+      vscode.window.showInformationMessage("tjohei");
+    },
+    context.subscriptions
   );
 
+  let today = new Date();
+
+  //checks if the output folder already exists,
+  //if not it creates it
+  function ensureDirectoryExistence(filePath: string) {
+    var dirname = path.dirname(filePath);
+    if (fs.existsSync(dirname)) {
+      return true;
+    }
+    ensureDirectoryExistence(dirname);
+    fs.mkdirSync(dirname);
+  }
+
+  let outputPath = path.join(
+    __dirname,
+    "../../vsCodeOutput/vscodeData-" +
+      today.toISOString().slice(0, 10) +
+      today.getHours() +
+      today.getMinutes() +
+      ".csv"
+  );
   //logs the code in open file to csv file every five seconds
   //along with the time
   setInterval(() => {
@@ -39,11 +56,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     const data = `${now},\n${highlighted}\n`;
 
+    ensureDirectoryExistence(outputPath);
+
     try {
-      fs.appendFileSync(
-        path.join(__dirname, "../src/vscodeData.csv"),
-        data + "\n\n"
-      );
+      fs.appendFileSync(outputPath, data + "\n\n");
     } catch (err) {
       console.error(err);
     }
