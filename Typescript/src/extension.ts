@@ -6,15 +6,9 @@ import * as fs from "fs";
 import * as path from "path";
 
 // This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "extension" is now active!');
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
   const disposable = vscode.commands.registerCommand(
     "extension.showData",
     () => {
@@ -26,18 +20,25 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions
   );
 
-  let today = new Date();
+  //logs code every five seconds
+  setInterval(() => {
+    const editor = vscode.window.activeTextEditor;
+    const highlighted = editor!.document.getText();
+    const now = new Date().toLocaleString();
+    const data = `${now},\n${highlighted}\n`;
 
-  //checks if the output folder already exists,
-  //if not it creates it
-  function ensureDirectoryExistence(filePath: string) {
-    var dirname = path.dirname(filePath);
-    if (fs.existsSync(dirname)) {
-      return true;
-    }
-    ensureDirectoryExistence(dirname);
-    fs.mkdirSync(dirname);
-  }
+    log(data);
+  }, 5000);
+
+  context.subscriptions.push(disposable);
+}
+
+function log(data: string) {
+  /**
+   * Logs the code of the current open file to a csv file.
+   * @param {string} data - the data to be logged
+   */
+  let today = new Date();
 
   let outputPath = path.join(
     __dirname,
@@ -47,25 +48,27 @@ export function activate(context: vscode.ExtensionContext) {
       today.getMinutes() +
       ".csv"
   );
-  //logs the code in open file to csv file every five seconds
-  //along with the time
-  setInterval(() => {
-    const editor = vscode.window.activeTextEditor;
-    const highlighted = editor!.document.getText();
-    const now = new Date().toLocaleString();
 
-    const data = `${now},\n${highlighted}\n`;
+  ensureDirectoryExistence(outputPath);
 
-    ensureDirectoryExistence(outputPath);
+  try {
+    fs.appendFileSync(outputPath, data + "\n\n");
+  } catch (err) {
+    console.error(err);
+  }
+}
 
-    try {
-      fs.appendFileSync(outputPath, data + "\n\n");
-    } catch (err) {
-      console.error(err);
-    }
-  }, 5000);
-
-  context.subscriptions.push(disposable);
+function ensureDirectoryExistence(filePath: string) {
+  /**
+   * Checks if the filepath exists, if not it creates the necessary folders
+   * @param {string} filePath - path to where you want to create a file
+   */
+  var dirname = path.dirname(filePath);
+  if (fs.existsSync(dirname)) {
+    return true;
+  }
+  ensureDirectoryExistence(dirname);
+  fs.mkdirSync(dirname);
 }
 
 // This method is called when your extension is deactivated
