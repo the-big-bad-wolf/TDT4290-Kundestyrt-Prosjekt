@@ -44,8 +44,8 @@ class CognitiveLoadPredictor:
 
     def _estimate_order(self):
         """
-        Estimates the AR and MA order (p and q) for the ARIMA model based on AIC.
-
+        Estimates the AR and MA order (p and q) for the ARIMA model based on AIC, Akaike information criterion
+        https://en.wikipedia.org/wiki/Akaike_information_criterion
         Returns:
         - tuple: A tuple containing the estimated p and q values.
         """
@@ -92,36 +92,58 @@ class CognitiveLoadPredictor:
         return forecast, is_outlier
 
     def _plot_data_and_forecast(self, new_value, forecast):
-        plt.figure(figsize=(10, 6))
+        """
+        TODO sjekk om denne oppdateres
+
+        Args:
+            new_value (_type_): _description_
+            forecast (_type_): _description_
+        """
+        if not hasattr(self, "fig"):
+            self.fig, self.ax = plt.subplots(figsize=(10, 6))
+            plt.ion()  # Aktiver interaktiv modus
+
+        self.ax.clear()  # Fjern tidligere plott
 
         # Plot the data
-        plt.plot(self.data, label="Data", color="blue")
+        self.ax.plot(self.data, label="Data", color="blue")
 
         # Plot the new value
-        plt.scatter(len(self.data) - 1, self.data[-1], color="red", label="New Value")
+        self.ax.scatter(
+            len(self.data) - 1, self.data[-1], color="red", label="New Value"
+        )
 
         # Plot the forecast
-        plt.scatter(len(self.data), forecast, color="green", label="Forecast")
+        self.ax.scatter(len(self.data), forecast, color="green", label="Forecast")
 
-        plt.title("Cognitive Load Data and Forecast")
-        plt.xlabel("Time")
-        plt.ylabel("Standardized Value")
-        plt.legend()
-        plt.grid(True)
-        plt.show()
+        self.ax.set_title("Cognitive Load Data and Forecast")
+        self.ax.set_xlabel("Time")
+        self.ax.set_ylabel("Standardized Value")
+        self.ax.legend()
+        self.ax.grid(True)
+
+        plt.draw()  # Oppdater figuren
+        plt.pause(0.1)  # Legg til en liten forsinkelse
 
 
-# Example usage:
-initial_data = 2 + 8 * np.random.rand(
+# For testing
+initial_data = 2 + 2 * np.random.rand(
     120
-)  # Dette vil gi deg 120 tilfeldige verdier mellom 2 og 10
+)  # Dette vil gi deg 120 tilfeldige verdier mellom 2 og 4
 predictor = CognitiveLoadPredictor(initial_data)
 
 # When a new value becomes available:
-new_value = np.random.randint(8, 13)
+new_value = 11
 print(f"New value: {new_value}")
+forecast, is_outlier = predictor.update_and_predict(new_value)
+new_value = 8
+forecast, is_outlier = predictor.update_and_predict(new_value)
+new_value = 15
 forecast, is_outlier = predictor.update_and_predict(new_value)
 print(f"Forecasted value: {forecast}")
 print(f"Is outlier: {is_outlier}")
 print(f"Reference median: {predictor.reference_median}")
 print(f"Reference mean: {predictor.mean_initial}")
+
+
+plt.show(block=True)  # ikke nødvendig når den kjører live:)
