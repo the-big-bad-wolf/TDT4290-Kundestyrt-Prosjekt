@@ -4,6 +4,9 @@ import * as vscode from "vscode";
 import { setUp } from "./listener";
 import * as fs from "fs";
 import * as path from "path";
+import { RawData } from "ws";
+
+let statusBarItem: vscode.StatusBarItem;
 
 // This method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -14,11 +17,21 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       // The code you place here will be executed every time your command is executed
       // Display a message box to the user
-      setUp(context);
+      setUp();
+
+      statusBarItem = vscode.window.createStatusBarItem(
+        vscode.StatusBarAlignment.Right,
+        100
+      );
+      statusBarItem.text = "waiting for data";
+      statusBarItem.show();
+
       vscode.window.showInformationMessage("tjohei");
     },
     context.subscriptions
   );
+
+  context.subscriptions.push(statusBarItem);
 
   //logs code every five seconds
   setInterval(() => {
@@ -27,10 +40,22 @@ export function activate(context: vscode.ExtensionContext) {
     const now = new Date().toLocaleString();
     const data = `${now},\n${highlighted}\n`;
 
-    log(data);
+    //log(data); Commented out to avoid logging every attepmt while developing
   }, 5000);
 
   context.subscriptions.push(disposable);
+}
+
+export function updateStatusBarData(data: RawData) {
+  /**
+   * updates teh statusbar with the received data
+   * @param {RawData} data - the data to be displayed in statusbar
+   */
+
+  let outputJson = JSON.parse(data.toString());
+
+  statusBarItem.text =
+    "cognitive load: " + outputJson["Current cognitive load"];
 }
 
 function log(data: string) {
@@ -38,6 +63,7 @@ function log(data: string) {
    * Logs the code of the current open file to a csv file.
    * @param {string} data - the data to be logged
    */
+
   let today = new Date();
 
   let outputPath = path.join(
