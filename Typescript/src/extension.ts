@@ -68,5 +68,33 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable);
 }
 
+export async function offerHelpNotification() {
+  /**
+   * Creates a notification to user offering to turn on copilot
+   */
+
+  const selection = await vscode.window.showWarningMessage(
+    "Do you want some help with that?",
+    "Yes, please",
+    "No, thank you"
+  );
+
+  if (selection == "Yes, please") {
+    console.log("Turn on copilot");
+  } else if (selection == "No, thank you") {
+    console.log("The user does not need help");
+  }
+}
+
+export function offerPauseNotification() {
+  /**
+   * Creates a notification to the user telling them they should take a break
+   */
+
+  vscode.window.showWarningMessage(
+    "Hey there, you seem stressed. Maybe its time to take a break?"
+  );
+}
+
 // This method is called when your extension is deactivated
 export function deactivate() {}
