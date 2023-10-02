@@ -35,7 +35,6 @@ class WebSocketServer:
                 if self.predictor:
                     new_value = df.iloc[-1, 1].astype(float)
                     forecast, need_help = self.predictor.update_and_predict(new_value)
-                    print("Prediction: ", forecast)
 
                     # put it in the queue so the web socket can read
                     await queue.put(

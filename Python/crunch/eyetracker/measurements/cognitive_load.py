@@ -93,5 +93,5 @@ def lhipa(d, signal_dur):
         if math.fabs(cD_LHt[i]) > 0:
             ctr += 1
     LHIPA = float(ctr) / tt
-    print("Cogntive load: ",LHIPA)
+    print("Cognitive load: ",LHIPA)
     return LHIPA

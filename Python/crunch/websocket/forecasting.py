@@ -16,7 +16,6 @@ class CognitiveLoadPredictor:
 
     Attributes:
     - data (numpy.array): The array of cognitive load data.
-    - reference_median (float): The median value from the initial data.
     - p (int): The AR order for the ARIMA model.
     - q (int): The MA order for the ARIMA model.
     - model (ARIMA): The ARIMA model instance.
@@ -37,18 +36,13 @@ class CognitiveLoadPredictor:
         self.raw_data = initial_data
         self.mean_initial = np.mean(initial_data)
         self.std_initial = np.std(initial_data)
-        self.data = self._standardize_data(initial_data)
-        self.reference_median = np.median(self.data)
+        self.data = initial_data
         self.p, self.q = self._estimate_order()
         self.model = ARIMA(self.data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
 
         self.fig, (self.ax, self.mse_ax) = plt.subplots(2, 1, figsize=(10, 12))
         plt.ion()
-
-    def _standardize_data(self, data):
-        """Standardizes the data."""
-        return (data - self.mean_initial) / self.std_initial
 
     def _estimate_order(self):
         """
@@ -91,16 +85,14 @@ class CognitiveLoadPredictor:
             self.backtest(new_value)
 
         self.raw_data = np.append(self.raw_data[1:], new_value)
-        self.data = self._standardize_data(self.raw_data)
         self.model = ARIMA(self.data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
 
-        forecast = self.model_fit.forecast(steps=1)[0]
+        forecast = self.model_fit.forecast(steps=10)
         print(f"Forecast: {forecast}")
-        print(f"Reference median: {self.reference_median}")
-        is_outlier = np.abs(forecast - self.reference_median) > 2
+        is_outlier = np.any((np.abs(forecast) >= 2))
         self._plot_data_and_forecast(new_value, forecast)
-        self.old_forecast=forecast
+        self.old_forecast=forecast[0]
         return forecast, is_outlier
 
     def _plot_data_and_forecast(self, new_value, forecast):
@@ -126,7 +118,8 @@ class CognitiveLoadPredictor:
         )
 
         # Plot the forecast
-        self.ax.scatter(len(self.data), forecast, color="green", label="Forecast")
+        forecast_x_values = np.arange(len(self.data), len(self.data) + len(forecast))     
+        self.ax.plot(forecast_x_values, forecast, color="green", label="Forecast", linestyle='--')
 
         self.ax.set_title("Cognitive Load Data and Forecast")
         self.ax.set_xlabel("Time")
@@ -135,7 +128,7 @@ class CognitiveLoadPredictor:
         self.ax.grid(True)
 
         plt.draw()  # Oppdater figuren
-        plt.pause(0.1)  # Legg til en liten forsinkelse
+        plt.pause(1)  # Legg til en liten forsinkelse
 
     def backtest(self,new_value):
         squared_error=(new_value-self.old_forecast)**2
@@ -154,7 +147,7 @@ class CognitiveLoadPredictor:
         self.mse_ax.legend()
         self.mse_ax.grid(True)
         plt.draw()
-        plt.pause(0.1)
+        plt.pause(1)
 # # For testing
 # initial_data = 2 + 2 * np.random.rand(
 #     120
