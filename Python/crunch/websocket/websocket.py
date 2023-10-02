@@ -11,12 +11,8 @@ import websockets
 from watchgod import awatch
 
 import crunch.util as util
-from crunch.websocket.SimpleARIMAForecasting import (
-    establish_reference,
-    predict_next_direction,
-)
 
-
+predictor_list=[]
 async def watcher(queue):
     """
     param: queue
@@ -36,17 +32,19 @@ async def watcher(queue):
                 predictor = CognitiveLoadPredictor(
                     df.iloc[:baseline_items, 1].values.astype(float)
                 )
+                print("heye")
+                predictor_list.append(predictor)
 
             # get last 10 rows of changed file
             print("10 last: ", df.iloc[-10:, 1].values.astype(float))
-            if len(df.index) + 1 >= baseline_items:
+            if len(df.index) + 1>= baseline_items:
                 # mean, std = establish_reference(df.iloc[1:baseline_items,1].values.astype(float))
                 # forecast, need_help = predict_next_direction(df.iloc[-10:,1].values.astype(float),mean,std)
                 # print("Prediction: ", forecast)
 
                 # Updated
                 new_value = df.iloc[-1, 1].astype(float)
-                forecast, need_help = predictor.update_and_predict(new_value)
+                forecast, need_help = predictor_list[0].update_and_predict(new_value)
                 print("Prediction: ", forecast)
 
                 # put it queue so web socket can read

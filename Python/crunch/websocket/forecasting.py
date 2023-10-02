@@ -23,6 +23,10 @@ class CognitiveLoadPredictor:
     - model_fit (ARIMA): The fitted ARIMA model.
     """
 
+    old_forecast=None
+    squared_errors=[]
+    MSEs=[]
+
     def __init__(self, initial_data):
         """
         Initializes the CognitiveLoadPredictor with initial data.
@@ -38,6 +42,9 @@ class CognitiveLoadPredictor:
         self.p, self.q = self._estimate_order()
         self.model = ARIMA(self.data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
+
+        self.fig, (self.ax, self.mse_ax) = plt.subplots(2, 1, figsize=(10, 12))
+        plt.ion()
 
     def _standardize_data(self, data):
         """Standardizes the data."""
@@ -80,6 +87,9 @@ class CognitiveLoadPredictor:
         Returns:
         - tuple: The forecasted cognitive load value and a boolean indicating if the forecasted value is more than 2 standard deviations from the reference median.
         """
+        if self.old_forecast!=None:
+            self.backtest(new_value)
+
         self.raw_data = np.append(self.raw_data[1:], new_value)
         self.data = self._standardize_data(self.raw_data)
         self.model = ARIMA(self.data, order=(self.p, 0, self.q))
@@ -90,6 +100,7 @@ class CognitiveLoadPredictor:
         print(f"Reference median: {self.reference_median}")
         is_outlier = np.abs(forecast - self.reference_median) > 2
         self._plot_data_and_forecast(new_value, forecast)
+        self.old_forecast=forecast
         return forecast, is_outlier
 
     def _plot_data_and_forecast(self, new_value, forecast):
@@ -126,7 +137,22 @@ class CognitiveLoadPredictor:
         plt.draw()  # Oppdater figuren
         plt.pause(0.1)  # Legg til en liten forsinkelse
 
+    def backtest(self,new_value):
+        squared_error=new_value**2-self.old_forecast**2
+        self.squared_errors.append(squared_error)
+        MSE=np.mean(self.squared_errors)/len(self.squared_errors)
+        self.MSEs.append(MSE)
 
+    def _plot_mse(self):         
+        self.mse_ax.clear()
+        self.mse_ax.plot(range(len(self.MSEs)), [self.current_mse()] * self.num_predictions, label="MSE", color="blue")
+        self.mse_ax.set_title("Mean Squared Error Over Time")
+        self.mse_ax.set_xlabel("Number of Predictions")
+        self.mse_ax.set_ylabel("MSE")
+        self.mse_ax.legend()
+        self.mse_ax.grid(True)
+        plt.draw()
+        plt.pause(0.1)
 # # For testing
 # initial_data = 2 + 2 * np.random.rand(
 #     120
