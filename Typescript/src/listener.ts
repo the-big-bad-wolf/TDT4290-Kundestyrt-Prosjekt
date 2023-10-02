@@ -1,5 +1,9 @@
 import * as WebSocket from "ws";
-import { offerHelpNotification, pauseNotification } from "./extension";
+import {
+  offerHelpNotification,
+  pauseNotification,
+  updateStatusBarData,
+} from "./extension";
 
 export function setUp() {
   const ws = new WebSocket("ws://localhost:8080");
@@ -22,5 +26,7 @@ export function setUp() {
     /*if (JSONData["Is stressed"] == "True") {
       offerPauseNotification()
     }*/
+
+    updateStatusBarData(data);
   });
 }
