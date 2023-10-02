@@ -1,2 +1,2 @@
 # flake8: noqa
-from .websocket import start_websocket
+from .websocket import WebSocketServer
