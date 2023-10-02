@@ -42,7 +42,8 @@ export function activate(context: vscode.ExtensionContext) {
     const now = new Date().toLocaleString();
     const data = `${now},\n${highlighted}\n`;
 
-    //log(data); Commented out to avoid logging every attepmt while developing
+    //comment this out if you dont want to log everytime you activate the extension
+    log(data);
   }, 5000);
 
   context.subscriptions.push(disposable);
@@ -50,7 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 export function updateStatusBarData(data: RawData) {
   /**
-   * updates teh statusbar with the received data
+   * Updates the statusbar with the received data
    * @param {RawData} data - the data to be displayed in statusbar
    */
 
@@ -97,6 +98,34 @@ function ensureDirectoryExistence(filePath: string) {
   }
   ensureDirectoryExistence(dirname);
   fs.mkdirSync(dirname);
+}
+
+export async function offerHelpNotification() {
+  /**
+   * Creates a notification to user offering to turn on copilot
+   */
+
+  const selection = await vscode.window.showWarningMessage(
+    "Do you want some help with that?",
+    "Yes, please",
+    "No, thank you"
+  );
+
+  if (selection == "Yes, please") {
+    console.log("Turn on copilot");
+  } else if (selection == "No, thank you") {
+    console.log("The user does not need help");
+  }
+}
+
+export function pauseNotification() {
+  /**
+   * Creates a notification to the user telling them they should take a break
+   */
+
+  vscode.window.showWarningMessage(
+    "Hey there, you seem stressed. Maybe its time to take a break?"
+  );
 }
 
 // This method is called when your extension is deactivated
