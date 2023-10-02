@@ -6,7 +6,7 @@ import socket
 from datetime import datetime
 
 import pandas as pd
-from Python.crunch.websocket.forecasting import CognitiveLoadPredictor
+from crunch.websocket.forecasting import CognitiveLoadPredictor
 import websockets
 from watchgod import awatch
 
@@ -27,15 +27,15 @@ async def watcher(queue):
     if not os.path.exists("crunch/output"):
         os.makedirs("crunch/output")
 
-    baseline_items = 120
-    df = pd.read_csv(file_path)
-    predictor = CognitiveLoadPredictor(df.iloc[:baseline_items, 1].values.astype(float))
-
     async for changes in awatch("./crunch/output/"):
         for a in changes:
             file_path = a[1]
             baseline_items = 10
             df = pd.read_csv(file_path)
+            if len(df.index) + 1 == baseline_items:
+                predictor = CognitiveLoadPredictor(
+                    df.iloc[:baseline_items, 1].values.astype(float)
+                )
 
             # get last 10 rows of changed file
             print("10 last: ", df.iloc[-10:, 1].values.astype(float))
