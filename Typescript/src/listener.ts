@@ -1,5 +1,5 @@
 import * as WebSocket from "ws";
-import { offerHelpNotification, offerPauseNotification } from "./extension";
+import { offerHelpNotification, pauseNotification } from "./extension";
 
 export function setUp() {
   const ws = new WebSocket("ws://localhost:8080");
@@ -15,11 +15,11 @@ export function setUp() {
 
     let JSONData = JSON.parse(data.toString());
 
-    if (JSONData["Need help"] == true) {
+    if (JSONData["Need help"] == "True") {
       offerHelpNotification();
     }
 
-    /*if (JSONData["Is stressed"] == true) {
+    /*if (JSONData["Is stressed"] == "True") {
       offerPauseNotification()
     }*/
   });

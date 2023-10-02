@@ -86,7 +86,7 @@ export async function offerHelpNotification() {
   }
 }
 
-export function offerPauseNotification() {
+export function pauseNotification() {
   /**
    * Creates a notification to the user telling them they should take a break
    */
