@@ -85,6 +85,7 @@ class CognitiveLoadPredictor:
             self.backtest(new_value)
 
         self.raw_data = np.append(self.raw_data[1:], new_value)
+        self.data=self.raw_data
         self.model = ARIMA(self.data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
 
@@ -120,6 +121,7 @@ class CognitiveLoadPredictor:
         # Plot the forecast
         forecast_x_values = np.arange(len(self.data), len(self.data) + len(forecast))     
         self.ax.plot(forecast_x_values, forecast, color="green", label="Forecast", linestyle='--')
+        self.ax.set_ylim(-5,5)
 
         self.ax.set_title("Cognitive Load Data and Forecast")
         self.ax.set_xlabel("Time")
