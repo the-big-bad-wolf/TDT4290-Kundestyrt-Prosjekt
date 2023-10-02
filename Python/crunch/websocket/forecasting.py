@@ -36,13 +36,17 @@ class CognitiveLoadPredictor:
         self.raw_data = initial_data
         self.mean_initial = np.mean(initial_data)
         self.std_initial = np.std(initial_data)
-        self.data = initial_data
+        self.data = self.standardize(initial_data)
         self.p, self.q = self._estimate_order()
         self.model = ARIMA(self.data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
 
         self.fig, (self.ax, self.mse_ax) = plt.subplots(2, 1, figsize=(10, 12))
         plt.ion()
+
+    def standardize(self, data):
+        return (data-self.mean_initial)/self.std_initial
+
 
     def _estimate_order(self):
         """
@@ -85,15 +89,15 @@ class CognitiveLoadPredictor:
             self.backtest(new_value)
 
         self.raw_data = np.append(self.raw_data[1:], new_value)
-        self.data=self.raw_data
+        self.data=self.standardize(self.raw_data)
         self.model = ARIMA(self.data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
 
         forecast = self.model_fit.forecast(steps=10)
-        print(f"Forecast: {forecast}")
         is_outlier = np.any((np.abs(forecast) >= 2))
         self._plot_data_and_forecast(new_value, forecast)
         self.old_forecast=forecast[0]
+
         return forecast, is_outlier
 
     def _plot_data_and_forecast(self, new_value, forecast):

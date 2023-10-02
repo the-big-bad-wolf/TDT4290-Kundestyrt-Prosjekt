@@ -1,7 +1,5 @@
 from collections import deque
 
-import numpy as np
-
 from crunch import util
 
 
@@ -88,7 +86,6 @@ class DataHandler:
     def transition_to_csv_phase(self):
         """Compute baseline and set phase_func to csv_phase"""
         self.baseline = float(sum(self.list_of_baseline_values) / len(self.list_of_baseline_values))
-        self.baseline_std = float(np.std(self.list_of_baseline_values))
         self.phase_func = self.csv_phase
         assert 0 <= self.baseline < float('inf') and type(self.baseline) == float
 
@@ -96,5 +93,5 @@ class DataHandler:
         """Calculate measurement and write the ratio relative to baseline to csv file"""
         measurement = self.measurement_func(**{key: list(queue) for key, queue in self.data_queues.items()})
         if self.calculate_baseline:
-            measurement = round((measurement-self.baseline)/self.baseline_std, 6)
+            measurement = round(measurement / self.baseline, 6)
         util.write_csv(self.measurement_path, [measurement])

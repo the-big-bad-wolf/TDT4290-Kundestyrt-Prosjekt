@@ -18,7 +18,7 @@ class WebSocketServer:
         if not os.path.exists("crunch/output"):
             os.makedirs("crunch/output")
         
-        baseline_items = 10
+        baseline_items = 30
 
         async for changes in awatch("./crunch/output/"):
             for a in changes:
