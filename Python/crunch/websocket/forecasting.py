@@ -97,6 +97,7 @@ class CognitiveLoadPredictor:
         is_outlier = np.any((np.abs(forecast) >= 2))
         self._plot_data_and_forecast(new_value, forecast)
         self.old_forecast=forecast[0]
+
         return forecast, is_outlier
 
     def _plot_data_and_forecast(self, new_value, forecast):
