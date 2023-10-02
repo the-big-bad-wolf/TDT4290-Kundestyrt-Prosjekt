@@ -3,95 +3,86 @@ import functools
 import json
 import os
 import socket
-from datetime import datetime
-
 import pandas as pd
 from crunch.websocket.forecasting import CognitiveLoadPredictor
 import websockets
 from watchgod import awatch
-
 import crunch.util as util
-from crunch.websocket.SimpleARIMAForecasting import (
-    establish_reference,
-    predict_next_direction,
-)
 
 
-async def watcher(queue):
-    """
-    param: queue
-    type queue: asyncio queue
-    watches for changes in the output folder,
-    and puts them in the asyncio queue
-    """
-    if not os.path.exists("crunch/output"):
-        os.makedirs("crunch/output")
+class WebSocketServer:
+    def __init__(self):
+        self.predictor = None
 
-    async for changes in awatch("./crunch/output/"):
-        for a in changes:
-            file_path = a[1]
-            baseline_items = 10
-            df = pd.read_csv(file_path)
-            if len(df.index) + 1 == baseline_items:
-                predictor = CognitiveLoadPredictor(
-                    df.iloc[:baseline_items, 1].values.astype(float)
-                )
+    async def watcher(self, queue):
+        if not os.path.exists("crunch/output"):
+            os.makedirs("crunch/output")
 
-            # get last 10 rows of changed file
-            print("10 last: ", df.iloc[-10:, 1].values.astype(float))
-            if len(df.index) + 1 >= baseline_items:
-                # mean, std = establish_reference(df.iloc[1:baseline_items,1].values.astype(float))
-                # forecast, need_help = predict_next_direction(df.iloc[-10:,1].values.astype(float),mean,std)
-                # print("Prediction: ", forecast)
+        baseline_items = 10
 
-                # Updated
-                new_value = df.iloc[-1, 1].astype(float)
-                forecast, need_help = predictor.update_and_predict(new_value)
-                print("Prediction: ", forecast)
+        async for changes in awatch("./crunch/output/"):
+            for a in changes:
+                file_path = a[1]
+                df = pd.read_csv(file_path)
 
-                # put it queue so web socket can read
-                await queue.put(
-                    {
-                        "Current cognitive load": str(df.iloc[-1, 1].astype(float)),
-                        "Forecasted cognitive load": str(forecast),
-                        "Need help": str(need_help),
-                    }
-                )
+                # If the predictor hasn't been instantiated yet, do it now
+                if self.predictor is None and len(df.index) + 1 == baseline_items:
+                    self.predictor = CognitiveLoadPredictor(
+                        df.iloc[:baseline_items, 1].values.astype(float)
+                    )
 
+                # If the predictor has been instantiated, update and predict
+                if self.predictor:
+                    new_value = df.iloc[-1, 1].astype(float)
+                    forecast, need_help = self.predictor.update_and_predict(new_value)
+                    print("Prediction: ", forecast)
 
-async def handler(websocket, path, queue):
-    try:
-        while True:
-            data = await queue.get()
-            await websocket.send(json.dumps(data))
-    finally:
-        print("Lost connection with websocket client")
+                    # put it in the queue so the web socket can read
+                    await queue.put(
+                        {
+                            "Current cognitive load": str(df.iloc[-1, 1].astype(float)),
+                            "Forecasted cognitive load": str(forecast),
+                            "Need help": str(need_help),
+                        }
+                    )
 
+    async def handler(self, websocket, path, queue):
+        try:
+            while True:
+                data = await queue.get()
+                await websocket.send(json.dumps(data))
+        finally:
+            print("Lost connection with websocket client")
 
-def start_websocket():
-    """
-    Starts the websocket and initializes an asyncio queue
-    which we can put items into to send them over the websocket
-    """
-    loop = asyncio.get_event_loop()
-    queue = asyncio.Queue()
+    def start_websocket(self):
+        loop = asyncio.get_event_loop()
+        queue = asyncio.Queue()
 
-    local_ip = socket.gethostbyname(socket.gethostname())
-    ip = (
-        "127.0.0.1" if util.config("websocket", "use_localhost") == "True" else local_ip
-    )
-    port = int(util.config("websocket", "port"))
-
-    print("##################################################################")
-    print("###### Paste the websocket ip on the frontend to connect")
-    print("###### IP: ", ip)
-    print("###### Port: ", port)
-    print("##################################################################")
-
-    start_server = websockets.serve(functools.partial(handler, queue=queue), ip, port)
-    loop.run_until_complete(
-        asyncio.gather(
-            start_server,
-            watcher(queue),
+        local_ip = socket.gethostbyname(socket.gethostname())
+        ip = (
+            "127.0.0.1"
+            if util.config("websocket", "use_localhost") == "True"
+            else local_ip
         )
-    )
+        port = int(util.config("websocket", "port"))
+
+        print("##################################################################")
+        print("###### Paste the websocket ip on the frontend to connect")
+        print("###### IP: ", ip)
+        print("###### Port: ", port)
+        print("##################################################################")
+
+        start_server = websockets.serve(
+            functools.partial(self.handler, queue=queue), ip, port
+        )
+        loop.run_until_complete(
+            asyncio.gather(
+                start_server,
+                self.watcher(queue),
+            )
+        )
+
+
+# To start the WebSocket server
+server = WebSocketServer()
+server.start_websocket()
