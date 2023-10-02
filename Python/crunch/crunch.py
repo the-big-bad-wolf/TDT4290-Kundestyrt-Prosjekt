@@ -3,7 +3,6 @@ from crunch.websocket.websocket import WebSocketServer
 
 from crunch.empatica import start_empatica
 from crunch.eyetracker import start_eyetracker
-from crunch.websocket import start_websocket
 
 
 def start_processes(mobile):

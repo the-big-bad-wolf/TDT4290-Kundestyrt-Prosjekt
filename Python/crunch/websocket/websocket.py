@@ -17,7 +17,7 @@ class WebSocketServer:
     async def watcher(self, queue):
         if not os.path.exists("crunch/output"):
             os.makedirs("crunch/output")
-
+        
         baseline_items = 10
 
         async for changes in awatch("./crunch/output/"):
@@ -26,7 +26,7 @@ class WebSocketServer:
                 df = pd.read_csv(file_path)
 
                 # If the predictor hasn't been instantiated yet, do it now
-                if self.predictor is None and len(df.index) + 1 == baseline_items:
+                if self.predictor is None and len(df.index) + 1 >= baseline_items:
                     self.predictor = CognitiveLoadPredictor(
                         df.iloc[:baseline_items, 1].values.astype(float)
                     )
@@ -81,8 +81,3 @@ class WebSocketServer:
                 self.watcher(queue),
             )
         )
-
-
-# To start the WebSocket server
-server = WebSocketServer()
-server.start_websocket()

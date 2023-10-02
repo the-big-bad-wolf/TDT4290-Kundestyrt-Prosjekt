@@ -138,14 +138,16 @@ class CognitiveLoadPredictor:
         plt.pause(0.1)  # Legg til en liten forsinkelse
 
     def backtest(self,new_value):
-        squared_error=new_value**2-self.old_forecast**2
+        squared_error=(new_value-self.old_forecast)**2
         self.squared_errors.append(squared_error)
         MSE=np.mean(self.squared_errors)/len(self.squared_errors)
         self.MSEs.append(MSE)
+        self._plot_mse()
 
     def _plot_mse(self):         
         self.mse_ax.clear()
-        self.mse_ax.plot(range(len(self.MSEs)), [self.current_mse()] * self.num_predictions, label="MSE", color="blue")
+        self.mse_ax.plot(self.MSEs, label="MSE", color="red")
+
         self.mse_ax.set_title("Mean Squared Error Over Time")
         self.mse_ax.set_xlabel("Number of Predictions")
         self.mse_ax.set_ylabel("MSE")
