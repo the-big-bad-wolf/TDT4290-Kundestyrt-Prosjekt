@@ -18,7 +18,7 @@ def start_eyetracker(api=EyetrackerAPI):
         subscribed_to=["lpup", "rpup"],
         window_length=800,
         window_step=400,
-        baseline_length=5
+        calculate_baseline=False
     )
     api.add_subscriber(cognitive_load_handler, "gaze")
 
