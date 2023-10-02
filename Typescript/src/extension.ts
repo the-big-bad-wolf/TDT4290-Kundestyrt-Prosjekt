@@ -23,10 +23,12 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.StatusBarAlignment.Right,
         100
       );
-      statusBarItem.text = "waiting for data";
+      statusBarItem.text = `Creating baseline $(loading~spin)`;
       statusBarItem.show();
 
-      vscode.window.showInformationMessage("tjohei");
+      vscode.window.showInformationMessage(
+        "Will now begin to create a baseline, just relax for a couple of minutes"
+      );
     },
     context.subscriptions
   );
