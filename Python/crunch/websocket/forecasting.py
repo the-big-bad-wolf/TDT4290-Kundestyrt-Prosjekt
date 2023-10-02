@@ -11,7 +11,8 @@ warnings.filterwarnings("ignore")
 
 class CognitiveLoadPredictor:
     """
-    A class to predict cognitive load using the ARIMA model.
+    A class to predict cognitive load using the ARIMA model ARIMA(p,d,q).
+    Due to stationarity in the data we use ARMA model, which is a special case of ARIMA, where d=0.
 
     Attributes:
     - data (numpy.array): The array of cognitive load data.
