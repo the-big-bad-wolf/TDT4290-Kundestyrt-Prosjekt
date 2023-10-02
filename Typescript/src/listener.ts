@@ -1,4 +1,6 @@
 import * as WebSocket from "ws";
+import * as vscode from "vscode";
+import { updateStatusBarData } from "./extension";
 
 export function setUp() {
   const ws = new WebSocket("ws://localhost:8080");
@@ -11,5 +13,7 @@ export function setUp() {
 
   ws.on("message", function message(data) {
     console.log("received: %s", data);
+
+    updateStatusBarData(data);
   });
 }
