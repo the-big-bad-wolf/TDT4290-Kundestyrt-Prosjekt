@@ -127,24 +127,24 @@ class CognitiveLoadPredictor:
         plt.pause(0.1)  # Legg til en liten forsinkelse
 
 
-# For testing
-initial_data = 2 + 2 * np.random.rand(
-    120
-)  # Dette vil gi deg 120 tilfeldige verdier mellom 2 og 4
-predictor = CognitiveLoadPredictor(initial_data)
+# # For testing
+# initial_data = 2 + 2 * np.random.rand(
+#     120
+# )  # Dette vil gi deg 120 tilfeldige verdier mellom 2 og 4
+# predictor = CognitiveLoadPredictor(initial_data)
 
-# When a new value becomes available:
-new_value = 11
-print(f"New value: {new_value}")
-forecast, is_outlier = predictor.update_and_predict(new_value)
-new_value = 8
-forecast, is_outlier = predictor.update_and_predict(new_value)
-new_value = 15
-forecast, is_outlier = predictor.update_and_predict(new_value)
-print(f"Forecasted value: {forecast}")
-print(f"Is outlier: {is_outlier}")
-print(f"Reference median: {predictor.reference_median}")
-print(f"Reference mean: {predictor.mean_initial}")
+# # When a new value becomes available:
+# new_value = 11
+# print(f"New value: {new_value}")
+# forecast, is_outlier = predictor.update_and_predict(new_value)
+# new_value = 8
+# forecast, is_outlier = predictor.update_and_predict(new_value)
+# new_value = 15
+# forecast, is_outlier = predictor.update_and_predict(new_value)
+# print(f"Forecasted value: {forecast}")
+# print(f"Is outlier: {is_outlier}")
+# print(f"Reference median: {predictor.reference_median}")
+# print(f"Reference mean: {predictor.mean_initial}")
 
 
-plt.show(block=True)  # ikke nødvendig når den kjører live:)
+# plt.show(block=True)  # ikke nødvendig når den kjører live:)
