@@ -111,11 +111,15 @@ export async function offerHelpNotification() {
     "No, thank you"
   );
 
-  if (selection == "Yes, please") {
-    console.log("Turn on copilot");
-  } else if (selection == "No, thank you") {
+  if (selection === "Yes, please") {
+    activateCopilotChat();
+  } else if (selection === "No, thank you") {
     console.log("The user does not need help");
   }
+}
+
+export function activateCopilotChat() {
+  vscode.commands.executeCommand('github.copilot.interactiveEditor.explain');
 }
 
 export function pauseNotification() {
