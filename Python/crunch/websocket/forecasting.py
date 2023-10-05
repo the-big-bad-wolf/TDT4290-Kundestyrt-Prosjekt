@@ -61,8 +61,8 @@ class CognitiveLoadPredictor:
         max_p = 5
         max_q = 5
 
-        for p in range(max_p + 1):
-            for q in range(max_q + 1):
+        for p in range(2,max_p + 1):
+            for q in range(2,max_q + 1):
                 try:
                     model = ARIMA(self.data, order=(p, 0, q))
                     model_fit = model.fit()
