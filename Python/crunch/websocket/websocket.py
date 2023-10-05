@@ -4,7 +4,7 @@ import json
 import os
 import socket
 import pandas as pd
-from crunch.websocket.forecasting import CognitiveLoadPredictor
+from crunch.forecasting.cognitive_load_predictor import CognitiveLoadPredictor
 import websockets
 from watchgod import awatch
 import crunch.util as util
@@ -18,7 +18,7 @@ class WebSocketServer:
         if not os.path.exists("crunch/output"):
             os.makedirs("crunch/output")
         
-        baseline_items = 30
+        baseline_items = 10
 
         async for changes in awatch("./crunch/output/"):
             for a in changes:
