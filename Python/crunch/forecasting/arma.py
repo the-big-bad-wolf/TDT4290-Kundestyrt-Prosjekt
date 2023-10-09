@@ -1,8 +1,6 @@
 import numpy as np
 from statsmodels.tsa.arima.model import ARIMA
-from statsmodels.tsa.stattools import acf, pacf
 import warnings
-import matplotlib.pyplot as plt
 
 # Ignore warnings
 # Fryktelig mange warnings fra AIC-estimeringen
@@ -10,17 +8,12 @@ warnings.filterwarnings("ignore")
 
 
 class ARMAClass:
-
-
-
-    def __init__(self,data):
-        self.data=data
-        self.p,self.q=self._estimate_order()
+    def __init__(self, data):
+        self.data = data
+        self.p, self.q = self._estimate_order()
         self.model = ARIMA(self.data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
-        self.old_forecast=None
-        
-        
+        self.old_forecast = None
 
     def _estimate_order(self):
         """
@@ -29,14 +22,11 @@ class ARMAClass:
         Returns:
         - tuple: A tuple containing the estimated p and q values.
         """
-        best_aic = float("inf")
+        best_aic = np.inf
         best_order = None
 
-        max_p = 5
-        max_q = 5
-
-        for p in range(2,max_p + 1):
-            for q in range(2,max_q + 1):
+        for p in range(2, 6):
+            for q in range(2, 6):
                 try:
                     model = ARIMA(self.data, order=(p, 0, q))
                     model_fit = model.fit()
@@ -48,7 +38,7 @@ class ARMAClass:
                     continue
         print(f"Best order: {best_order}")
         return best_order
-    
+
     def update_and_predict(self, new_value):
         """
         Updates the model with a new cognitive load value and predicts the next value.
