@@ -81,8 +81,3 @@ class GARCH:
         return np.sqrt(
             forecasts.variance.values[0][0]
         )  # the standard diviation for the next period
-
-
-data = np.array([0.02, -0.01, 0.03, -0.015, 0.025, -0.02, 0.015])
-garch = GARCH(data)
-print(garch.update_and_predict(0.01))
