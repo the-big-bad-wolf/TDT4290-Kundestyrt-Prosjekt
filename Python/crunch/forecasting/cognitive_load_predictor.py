@@ -1,8 +1,8 @@
 import numpy as np
 import warnings
-from arma import ARMAClass
-from garch import GARCHClass
-from plotting import Plotting
+from crunch.forecasting.arma import ARMAClass
+from crunch.forecasting.garch import GARCHClass
+from crunch.forecasting.plotting import Plotting
 
 # Ignore warnings
 # Fryktelig mange warnings fra AIC-estimeringen
