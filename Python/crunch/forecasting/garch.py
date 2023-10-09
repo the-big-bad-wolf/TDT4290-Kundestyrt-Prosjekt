@@ -2,9 +2,9 @@ import numpy as np
 from arch import arch_model
 
 
-class GARCH:
+class GARCHClass:
     """
-    GARCH Model for volatility forecasting.
+    GARCH Model for standard deviation forecasting.
 
     Attributes:
     -----------
@@ -27,7 +27,7 @@ class GARCH:
         Parameters:
         -----------
         data : np.ndarray
-            Time series data.
+            Standardized time series data.
         """
         self.data = data
         self.p, self.q = self.estimate_order()
@@ -78,6 +78,4 @@ class GARCH:
         self.model_fit = self.model.fit(disp="off")
 
         forecasts = self.model_fit.forecast()
-        return np.sqrt(
-            forecasts.variance.values[0][0]
-        )  # the standard diviation for the next period
+        return forecasts.mean["h.1"].iloc[-1]
