@@ -42,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
   setInterval(() => {
     const editor = vscode.window.activeTextEditor;
     const highlighted = editor!.document.getText();
-    const now = new Date().toLocaleString();
+    const now = new Date().getTime() / 1000;
     const data = `${now},\n${highlighted}\n`;
 
     //comment this out if you dont want to log everytime you activate the extension
