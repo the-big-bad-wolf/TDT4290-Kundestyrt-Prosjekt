@@ -130,33 +130,3 @@ class Plotting:
 
         plt.draw()
         plt.pause(1)
-
-
-def generate_mock_data(start_value, num_points, noise_scale):
-    """Generate mock data with some noise."""
-    return np.cumsum(np.random.randn(num_points) * noise_scale + start_value)
-
-
-def generate_mock_forecast(current_value, num_points, noise_scale):
-    """Generate mock forecast data based on the current value."""
-    return current_value + np.cumsum(np.random.randn(num_points) * noise_scale)
-
-
-if __name__ == "__main__":
-    num_data_points = 100
-    noise_scale = 0.5
-    start_value = 0
-
-    # Generate initial mock data
-    data = generate_mock_data(start_value, num_data_points, noise_scale)
-
-    plotter = Plotting()
-
-    # Simulate the input of new forecast values
-    for i in range(num_data_points - 10):
-        new_value = data[i]
-        forecast = generate_mock_forecast(new_value, 10, noise_scale)
-        plotter.plot(data[: i + 1], forecast)
-        plotter.backtest(new_value, forecast)
-
-    plt.show()
