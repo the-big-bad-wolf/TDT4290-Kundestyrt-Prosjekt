@@ -10,12 +10,13 @@ warnings.filterwarnings("ignore")
 class ARMAClass:
     def __init__(self, data):
         self.data = data
-        self.p, self.q = self._estimate_order()
+        self.p, self.q = self.estimate_order()
         self.model = ARIMA(self.data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
         self.old_forecast = None
+        self.counter = 0
 
-    def _estimate_order(self):
+    def estimate_order(self):
         """
         Estimates the AR and MA order (p and q) for the ARIMA model based on AIC, Akaike information criterion
         https://en.wikipedia.org/wiki/Akaike_information_criterion
@@ -50,6 +51,10 @@ class ARMAClass:
         - tuple: The forecasted cognitive load value and a boolean indicating if the forecasted value is more than 2 standard deviations from the reference median.
         """
 
+        if self.counter == 41:
+            self.counter = 0
+            self.estimate_order()
+        self.counter += 1
         self.data = np.append(self.data[1:], new_value)
         self.model = ARIMA(self.data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()

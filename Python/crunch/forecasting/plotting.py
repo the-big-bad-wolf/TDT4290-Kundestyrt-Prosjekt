@@ -23,7 +23,8 @@ class Plotting:
             plt.ion()  # Aktivate interactive mode
 
         self.ax.clear()  # Reset the plot
-
+        if self.averages == []:
+            self.averages = standardized_data.tolist()
         # Only consider the last 30 items
         data_to_plot = standardized_data[-30:]
         averages_to_plot = self.averages[-30:]
@@ -33,7 +34,10 @@ class Plotting:
 
         # Plot the historical average forecast
         self.ax.plot(
-            averages_to_plot, label="Average Forecast", color="purple", linestyle=":"
+            averages_to_plot,
+            label="Average Forecast",
+            color="purple",
+            linestyle=":",
         )
         # Plot the new value
         self.ax.scatter(
@@ -88,17 +92,15 @@ class Plotting:
 
         # Compute the average forecast for the next time step
         left_column_sum = np.sum(self.forecast_matrix[:, 0])
-        average_forecast = left_column_sum / min(
-            self.counter + 1, 10
-        )  # Use min to handle cases where counter < 10
+        average_forecast = left_column_sum / min(self.counter + 1, 10)
+        # Use min to handle cases where counter < 10
 
         # Append the average forecast to the averages list
         self.averages.append(average_forecast)
 
         # Use the average forecast to compute the squared error
-        squared_error = (new_value - self.averages[-1]) ** 2
-        RMSE = np.sqrt(squared_error)
-        self.RMSEs.append(RMSE)
+        error = abs(new_value - self.averages[-1])
+        self.RMSEs.append(error)
         self._plot_rmse()
 
         # Increment the counter until the number of predicted steps is reached
