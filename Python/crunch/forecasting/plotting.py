@@ -15,8 +15,8 @@ class Plotting:
     def plot(self, standardized_data, forecast):
         """
         Args:
-                new_value (_type_): _description_
-                forecast (_type_): _description_
+                new_value (float): newest actual measured value
+                forecast (np.ndarray): Array of the next 10 forecasted values
         """
         if not hasattr(self, "fig"):
             self.fig, self.ax = plt.subplots(figsize=(10, 6))
