@@ -53,6 +53,6 @@ class CognitiveLoadPredictor:
         self.standardized_data = np.append(self.standardized_data, standardized_value)
         self.Plotting.plot(self.standardized_data, arima_and_garch_combined_forecast)
 
-        self.Plotting.backtest(new_value, arima_and_garch_combined_forecast[0])
+        self.Plotting.backtest(standardized_value, arima_and_garch_combined_forecast)
 
         return forecast, is_outlier
