@@ -55,7 +55,7 @@ class ARMAClass:
             self.counter = 0
             self.estimate_order()
         self.counter += 1
-        self.data = np.append(self.data[1:], new_value)
+        self.data = np.append(self.data, new_value)
         self.model = ARIMA(self.data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
 

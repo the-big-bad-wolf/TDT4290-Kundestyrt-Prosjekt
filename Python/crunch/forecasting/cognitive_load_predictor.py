@@ -42,20 +42,24 @@ class CognitiveLoadPredictor:
 
     def update_and_predict(self, new_value):
         standardized_value = self.standardize(new_value)
-        forecast, is_outlier = self.ARMAClass.update_and_predict(standardized_value)
-        standard_deviation_forecast = self.GARCHClass.update_and_predict(
+        arma_forecast, is_outlier = self.ARMAClass.update_and_predict(
             standardized_value
+        )
+        garch_forecast = self.GARCHClass.update_and_predict(
+            self.ARMAClass.get_residuals()
         )
         # option to use results from ARMA and GARCH separately
         # garch_result = self.mean_initial + standard_deviation_forecast
         # arima_result = forecast
-        arima_and_garch_combined_forecast = forecast + standard_deviation_forecast
+        arima_and_garch_combined_forecast = arma_forecast + garch_forecast
+
+        print("ARMA: ", arma_forecast, "Garch: ", garch_forecast)
+
         self.standardized_data = np.append(self.standardized_data, standardized_value)
         self.Plotting.plot(self.standardized_data, arima_and_garch_combined_forecast)
-
         self.Plotting.backtest(standardized_value, arima_and_garch_combined_forecast)
 
-        return forecast, is_outlier
+        return arma_forecast, is_outlier
 
     def combined_forecast(self, time_series):
         # Step 1: Fit ARIMA model

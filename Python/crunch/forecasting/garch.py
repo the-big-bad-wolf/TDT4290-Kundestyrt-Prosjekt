@@ -59,7 +59,7 @@ class GARCHClass:
 
         return best_order
 
-    def update_and_predict(self, new_data: float):
+    def update_and_predict(self, residuals):
         """
         Update the model with a new observation and forecast the next value's volatility.
 
@@ -76,11 +76,12 @@ class GARCHClass:
             self.counter = 0
             self.estimate_order()
         self.counter += 1
-        self.residuals = np.append(self.residuals[1:], new_data)
+        self.residuals = residuals
         self.model = arch_model(
             self.residuals, vol="Garch", p=self.p, q=self.q, rescale=False
         )
         self.model_fit = self.model.fit(disp="off")
 
-        forecasts = self.model_fit.forecast()
-        return forecasts.mean["h.1"].iloc[-1]
+        forecasts = self.model_fit.forecast(horizon=10)
+
+        return forecasts.mean["h.01"].iloc[-1]
