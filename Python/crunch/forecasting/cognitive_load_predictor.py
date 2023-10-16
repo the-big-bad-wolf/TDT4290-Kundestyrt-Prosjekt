@@ -42,9 +42,7 @@ class CognitiveLoadPredictor:
 
     def update_and_predict(self, new_value):
         standardized_value = self.standardize(new_value)
-        arma_forecast, is_outlier = self.ARMAClass.update_and_predict(
-            standardized_value
-        )
+        arma_forecast = self.ARMAClass.update_and_predict(standardized_value)
         garch_forecast = self.GARCHClass.update_and_predict(
             self.ARMAClass.get_residuals()
         )
@@ -57,7 +55,9 @@ class CognitiveLoadPredictor:
         self.Plotting.plot(self.standardized_data, arima_and_garch_combined_forecast)
         self.Plotting.backtest(standardized_value, arima_and_garch_combined_forecast)
 
-        return arma_forecast, is_outlier
+        is_outlier = np.any((np.abs(arima_and_garch_combined_forecast) >= 2))
+
+        return arima_and_garch_combined_forecast, is_outlier
 
     def combined_forecast(self, time_series):
         # Step 1: Fit ARIMA model

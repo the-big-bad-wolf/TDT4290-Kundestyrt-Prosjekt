@@ -60,9 +60,8 @@ class ARMAClass:
         self.model_fit = self.model.fit()
 
         forecast = self.model_fit.forecast(steps=10)
-        is_outlier = np.any((np.abs(forecast) >= 2))
 
-        return forecast, is_outlier
+        return forecast
 
     def get_residuals(self):
         """
