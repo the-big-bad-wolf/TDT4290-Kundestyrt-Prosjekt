@@ -10,6 +10,7 @@ class Plotting:
         self.averages = []
         self.forecast_matrix = np.zeros((10, 10))  # 10 forecasts, 10 values each
         self.fig, (self.ax, self.mse_ax) = plt.subplots(2, 1, figsize=(10, 12))
+        plt.subplots_adjust(hspace=0.5)
         plt.ion()
 
     def plot(self, standardized_data, forecast):
