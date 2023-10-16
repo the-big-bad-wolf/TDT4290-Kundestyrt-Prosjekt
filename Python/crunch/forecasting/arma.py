@@ -55,7 +55,7 @@ class ARMAClass:
             self.counter = 0
             self.estimate_order()
         self.counter += 1
-        self.data = np.append(self.data[1:], new_value)
+        self.data = np.append(self.data[-30:], new_value)
         self.model = ARIMA(self.data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
 
@@ -63,3 +63,14 @@ class ARMAClass:
         is_outlier = np.any((np.abs(forecast) >= 2))
 
         return forecast, is_outlier
+
+    def get_residuals(self):
+        """
+        Retrieve the residuals from the fitted ARIMA model.
+
+        Returns:
+        --------
+        np.ndarray
+            The residuals from the fitted model.
+        """
+        return self.model_fit.resid
