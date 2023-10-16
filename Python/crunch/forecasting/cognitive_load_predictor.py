@@ -53,8 +53,6 @@ class CognitiveLoadPredictor:
         # arima_result = forecast
         arima_and_garch_combined_forecast = arma_forecast + garch_forecast
 
-        print("ARMA: ", arma_forecast, "Garch: ", garch_forecast)
-
         self.standardized_data = np.append(self.standardized_data, standardized_value)
         self.Plotting.plot(self.standardized_data, arima_and_garch_combined_forecast)
         self.Plotting.backtest(standardized_value, arima_and_garch_combined_forecast)
