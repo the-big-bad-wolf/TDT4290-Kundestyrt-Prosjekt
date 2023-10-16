@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 class Plotting:
     def __init__(self):
         self.old_forecast = None
-        self.squared_errors = []
         self.RMSEs = []
         self.counter = 0
         self.averages = []
@@ -21,9 +20,9 @@ class Plotting:
         """
         if not hasattr(self, "fig"):
             self.fig, self.ax = plt.subplots(figsize=(10, 6))
-            plt.ion()  # Aktiver interaktiv modus
+            plt.ion()  # Aktivate interactive mode
 
-        self.ax.clear()  # Fjern tidligere plott
+        self.ax.clear()  # Reset the plot
 
         # Only consider the last 30 items
         data_to_plot = standardized_data[-30:]
@@ -46,7 +45,7 @@ class Plotting:
 
         # Adjust the forecast_x_values to start from the current data point
         forecast_x_values = np.arange(
-            len(data_to_plot) - 1, len(data_to_plot) + len(forecast) - 1
+            len(data_to_plot), len(data_to_plot) + len(forecast)
         )
         self.ax.plot(
             forecast_x_values, forecast, color="green", label="Forecast", linestyle="--"
@@ -95,14 +94,10 @@ class Plotting:
 
         # Append the average forecast to the averages list
         self.averages.append(average_forecast)
-        print(f"Average forecast: {average_forecast}")
-        print(f"left_column_sum: {left_column_sum}")
-        print(f"matrix: {self.forecast_matrix}")
 
         # Use the average forecast to compute the squared error
         squared_error = (new_value - self.averages[-1]) ** 2
-        self.squared_errors.append(squared_error)
-        RMSE = np.sqrt(np.mean(self.squared_errors))
+        RMSE = np.sqrt(squared_error)
         self.RMSEs.append(RMSE)
         self._plot_rmse()
 
