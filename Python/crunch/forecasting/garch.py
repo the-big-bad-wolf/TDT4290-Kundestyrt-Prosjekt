@@ -20,7 +20,7 @@ class GARCHClass:
         Fitted GARCH model.
     """
 
-    def __init__(self, data):
+    def __init__(self, residuals):
         """
         Initialize the GARCH model.
 
@@ -29,10 +29,10 @@ class GARCHClass:
         data : np.ndarray
             Standardized time series data.
         """
-        self.data = data
+        self.residuals = residuals
         self.p, self.q = self.estimate_order()
         self.model = arch_model(
-            self.data, vol="Garch", p=self.p, q=self.q, rescale=False
+            self.residuals, vol="Garch", p=self.p, q=self.q, rescale=False
         )
         self.model_fit = self.model.fit(disp="off")
         self.counter = 0
@@ -51,7 +51,7 @@ class GARCHClass:
 
         for p in range(2, 6):
             for q in range(2, 6):
-                model = arch_model(self.data, vol="Garch", p=p, q=q, rescale=False)
+                model = arch_model(self.residuals, vol="Garch", p=p, q=q, rescale=False)
                 results = model.fit(disp="off")
                 if results.aic < best_aic:
                     best_aic = results.aic
@@ -76,9 +76,9 @@ class GARCHClass:
             self.counter = 0
             self.estimate_order()
         self.counter += 1
-        self.data = np.append(self.data[1:], new_data)
+        self.residuals = np.append(self.residuals[1:], new_data)
         self.model = arch_model(
-            self.data, vol="Garch", p=self.p, q=self.q, rescale=False
+            self.residuals, vol="Garch", p=self.p, q=self.q, rescale=False
         )
         self.model_fit = self.model.fit(disp="off")
 

@@ -63,3 +63,14 @@ class ARMAClass:
         is_outlier = np.any((np.abs(forecast) >= 2))
 
         return forecast, is_outlier
+
+    def get_residuals(self):
+        """
+        Retrieve the residuals from the fitted ARIMA model.
+
+        Returns:
+        --------
+        np.ndarray
+            The residuals from the fitted model.
+        """
+        return self.model_fit.resid
