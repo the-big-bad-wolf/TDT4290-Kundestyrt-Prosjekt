@@ -30,4 +30,10 @@ To activate the extension, press f5, or run the command "Debug: Start Debugging"
 
 After activation, in the window the extension is running in, press ctrl + shift + p in windows, cmd + shift + p on mac, type show data, and run this command. This should activate the statusbar and give a notification that the extension is calculating a baseline.
 
-Run the websocket in the Python folder in order to have it actually show the cognitive load and trigger the notifiactions to toggle copilot. This requires the eyetracker.
+Run main.py in the Python folder in order to have the extension actually show the cognitive load and trigger the notifications to toggle copilot. Receiving data requires the eyetracker.
+
+## How to run tests
+
+### Python tests
+
+In the terminal, in the python folder, run the command python -m pytest
