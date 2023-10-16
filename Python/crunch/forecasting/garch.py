@@ -35,6 +35,7 @@ class GARCHClass:
             self.data, vol="Garch", p=self.p, q=self.q, rescale=False
         )
         self.model_fit = self.model.fit(disp="off")
+        self.counter = 0
 
     def estimate_order(self):
         """
@@ -71,6 +72,10 @@ class GARCHClass:
         --------
         - Float: Forecasted standard diviation for the next period.
         """
+        if self.counter == 41:
+            self.counter = 0
+            self.estimate_order()
+        self.counter += 1
         self.data = np.append(self.data[1:], new_data)
         self.model = arch_model(
             self.data, vol="Garch", p=self.p, q=self.q, rescale=False
