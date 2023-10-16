@@ -8,9 +8,12 @@ import { RawData } from "ws";
 
 let statusBarItem: vscode.StatusBarItem;
 
+let timeHelpPropmtWasActivated = new Date().getTime();
+let timePausePropmtWasActivated = new Date().getTime();
+
 // This method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
-  console.log('Congratulations, your extension "extension" is now active!');
+  console.log("Congratulations, your extension is now active!");
 
   const disposable = vscode.commands.registerCommand(
     "extension.showData",
@@ -39,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
   setInterval(() => {
     const editor = vscode.window.activeTextEditor;
     const highlighted = editor!.document.getText();
-    const now = new Date().toLocaleString();
+    const now = new Date().getTime() / 1000;
     const data = `${now},\n${highlighted}\n`;
 
     //comment this out if you dont want to log everytime you activate the extension
@@ -104,32 +107,43 @@ export async function offerHelpNotification() {
   /**
    * Creates a notification to user offering to turn on copilot
    */
+  let now = new Date().getTime();
 
-  const selection = await vscode.window.showWarningMessage(
-    "Do you want some help with that?",
-    "Yes, please",
-    "No, thank you"
-  );
+  //only prompt if it is five minutes since last promt
+  if (now - timeHelpPropmtWasActivated > 5 * 60 * 1000) {
+    timeHelpPropmtWasActivated = now;
 
-  if (selection === "Yes, please") {
-    activateCopilotChat();
-  } else if (selection === "No, thank you") {
-    console.log("The user does not need help");
+    const selection = await vscode.window.showWarningMessage(
+      "Do you want some help with that?",
+      "Yes, please",
+      "No, thank you"
+    );
+
+    if (selection === "Yes, please") {
+      activateCopilotChat();
+    } else if (selection === "No, thank you") {
+      console.log("The user does not need help");
+    }
   }
 }
 
 export function activateCopilotChat() {
-  vscode.commands.executeCommand('github.copilot.interactiveEditor.explain');
+  vscode.commands.executeCommand("github.copilot.interactiveEditor.explain");
 }
 
 export function pauseNotification() {
   /**
    * Creates a notification to the user telling them they should take a break
    */
+  let now = new Date().getTime();
 
-  vscode.window.showWarningMessage(
-    "Hey there, you seem stressed. Maybe its time to take a break?"
-  );
+  //only prompt if five minutes since last prompt
+  if (now - timePausePropmtWasActivated > 5 * 60 * 1000) {
+    timePausePropmtWasActivated = now;
+    vscode.window.showWarningMessage(
+      "Hey there, you seem stressed. Maybe its time to take a break?"
+    );
+  }
 }
 
 // This method is called when your extension is deactivated
