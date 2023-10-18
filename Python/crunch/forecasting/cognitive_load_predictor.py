@@ -55,7 +55,10 @@ class CognitiveLoadPredictor:
         self.Plotting.plot(self.standardized_data, arima_and_garch_combined_forecast)
         self.Plotting.backtest(standardized_value, arima_and_garch_combined_forecast)
 
-        is_outlier = np.any((np.abs(arima_and_garch_combined_forecast) >= 2))
+        is_outlier = (
+            np.any((np.abs(arima_and_garch_combined_forecast) >= 2))
+            or standardized_value >= 2
+        )
 
         return arima_and_garch_combined_forecast, is_outlier
 
