@@ -19,9 +19,6 @@ class Plotting:
                 new_value (float): newest actual measured value
                 forecast (np.ndarray): Array of the next 10 forecasted values
         """
-        if not hasattr(self, "fig"):
-            self.fig, self.ax = plt.subplots(figsize=(10, 6))
-            plt.ion()  # Aktivate interactive mode
 
         self.ax.clear()  # Reset the plot
         if self.averages == []:
