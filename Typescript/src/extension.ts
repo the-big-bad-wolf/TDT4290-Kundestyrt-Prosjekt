@@ -37,8 +37,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(statusBarItem);
 
+  //create file path to where the data will be logged
   let today = new Date();
-
   let outputPath = path.join(
     __dirname,
     "../../vsCodeOutput/vscodeData-" +
@@ -71,17 +71,20 @@ export function initializeHelpButton() {
    */
   statusBarItem.text = `Help me!`;
 
-  const myCommandId = "extension.help";
-  vscode.commands.registerCommand(myCommandId, () => {
+  //command to open copilot chat
+  const helpCommand = "extension.help";
+  vscode.commands.registerCommand(helpCommand, () => {
     activateCopilotChat();
   });
 
-  statusBarItem.command = myCommandId;
+  //set the command for the button
+  statusBarItem.command = helpCommand;
 }
 
 function log(outputPath: string, data: string) {
   /**
    * Logs the code of the current open file to a csv file.
+   * @param {string} outputPath - where the data should be logged
    * @param {string} data - the data to be logged
    */
 
@@ -101,7 +104,7 @@ function ensureDirectoryExistence(filePath: string) {
    */
   var dirname = path.dirname(filePath);
   if (fs.existsSync(dirname)) {
-    return true;
+    return;
   }
   ensureDirectoryExistence(dirname);
   fs.mkdirSync(dirname);
@@ -141,8 +144,8 @@ export function pauseNotification() {
    */
   let now = new Date().getTime();
 
-  //only prompt if five minutes since last prompt
-  if (now - timePausePropmtWasActivated > 5 * 60 * 1000) {
+  //only prompt if two minutes since last prompt
+  if (now - timePausePropmtWasActivated > 2 * 60 * 1000) {
     timePausePropmtWasActivated = now;
     vscode.window.showWarningMessage(
       "You are approaching a level of stress that can be detrimental to your task. It might be time to take a break."
