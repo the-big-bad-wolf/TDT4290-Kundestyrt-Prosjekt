@@ -6,7 +6,6 @@ from crunch.forecasting.plotting import Plotting
 
 # Ignore warnings
 # Fryktelig mange warnings fra AIC-estimeringen
-warnings.filterwarnings("ignore")
 
 
 class CognitiveLoadPredictor:
