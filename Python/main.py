@@ -1,8 +1,6 @@
-import argparse
-
 from crunch import start_processes
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # start program
     start_processes(False)
 

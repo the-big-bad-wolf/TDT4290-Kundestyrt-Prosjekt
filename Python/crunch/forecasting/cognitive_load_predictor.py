@@ -6,7 +6,6 @@ from crunch.forecasting.plotting import Plotting
 
 # Ignore warnings
 # Fryktelig mange warnings fra AIC-estimeringen
-warnings.filterwarnings("ignore")
 
 
 class CognitiveLoadPredictor:
@@ -60,32 +59,3 @@ class CognitiveLoadPredictor:
         )
 
         return arima_and_garch_combined_forecast, is_outlier
-
-    def combined_forecast(self, time_series):
-        # Step 1: Fit ARIMA model
-        arima_model = self.ARMAClass(time_series)
-        arima_model.fit()  # Assuming a method that fits the model exists or is integrated in your constructor
-
-        # Step 2: Extract residuals
-        residuals = arima_model.get_residuals()
-
-        # Step 3: Fit GARCH model
-        garch_model = self.GARCHClass(
-            residuals
-        )  # This initialization might be different based on your actual GARCH class design
-        garch_model.fit()  # Assuming a method that fits the model exists or is integrated in your constructor
-
-        # Step 4: Forecasting
-        # This step is hypothetical and depends on how your forecast methods are structured.
-        # It assumes you're forecasting one step ahead.
-        arima_forecast = arima_model.forecast()
-        garch_forecast = garch_model.forecast()
-
-        # The 'combined_result' could be a tuple, dictionary, or a custom object that holds the forecasted value and volatility.
-        # This is a simplified representation; you might need additional logic based on your forecasting requirements.
-        combined_result = {
-            "mean": arima_forecast,  # The forecasted future value
-            "volatility": garch_forecast,  # The forecasted volatility
-        }
-
-        return combined_result

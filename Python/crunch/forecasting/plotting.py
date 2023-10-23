@@ -19,9 +19,6 @@ class Plotting:
                 new_value (float): newest actual measured value
                 forecast (np.ndarray): Array of the next 10 forecasted values
         """
-        if not hasattr(self, "fig"):
-            self.fig, self.ax = plt.subplots(figsize=(10, 6))
-            plt.ion()  # Aktivate interactive mode
 
         self.ax.clear()  # Reset the plot
         if self.averages == []:
@@ -63,7 +60,7 @@ class Plotting:
         self.ax.set_ylim(-5, 5)
 
         self.ax.set_title("Cognitive Load Data and Forecast")
-        self.ax.set_xlabel("Number of Observations")
+        self.ax.set_xlabel("Observation Nr.")
         self.ax.set_ylabel("Z-Score")
         self.ax.legend()
         self.ax.grid(True)
@@ -72,9 +69,7 @@ class Plotting:
         actual_x_ticks = np.arange(
             len(standardized_data) - len(data_to_plot), len(standardized_data)
         )
-        tick_interval = max(
-            1, len(data_to_plot) // 6
-        )  # Adjust dynamically based on data length
+        tick_interval = 1  # Adjust dynamically based on data length
         self.ax.set_xticks(np.arange(0, len(data_to_plot), tick_interval))
         self.ax.set_xticklabels(actual_x_ticks[::tick_interval])
 
@@ -82,9 +77,9 @@ class Plotting:
         plt.pause(1)  # Add minor delay to plotting
 
     def backtest(self, new_value, forecast):
-        """Add the forecast to the forecast matrix and compute the MSE.
+        """Add the forecast to the forecast matrix and compute the mean absolute error.
         Calculate the sum of the first column in the forecast matrix and divide by the number of observations
-        After plotting the MSE shift the matrix down and drop the oldest forecast's last value
+        After plotting the mean absolute error shift the matrix down and drop the oldest forecast's last value
         Because it's being compared to the actual value
 
         Args:
@@ -107,34 +102,32 @@ class Plotting:
         # Use the average forecast to compute the squared error
         error = abs(new_value - self.averages[-1])
         self.errors.append(error)
-        self._plot_rmse()
+        self.plot_error()
 
         # Increment the counter until the number of predicted steps is reached
         if self.counter < 10:
             self.counter += 1
 
-    def _plot_rmse(self):
+    def plot_error(self):
         self.mse_ax.clear()
 
-        # Only consider the last 30 RMSE values
-        rmse_to_plot = self.errors[-30:]
-        x_values = np.arange(len(rmse_to_plot))
+        # Only consider the last 30 error values
+        errors_to_plot = self.errors[-30:]
+        x_values = np.arange(len(errors_to_plot))
 
-        self.mse_ax.plot(x_values, rmse_to_plot, label="Error", color="red")
+        self.mse_ax.plot(x_values, errors_to_plot, label="Error", color="red")
 
-        self.mse_ax.set_title("Error Over Time")
-        self.mse_ax.set_xlabel("Number of Predictions")
-        self.mse_ax.set_ylabel("Error")
+        self.mse_ax.set_title("Absolute Error Over Time")
+        self.mse_ax.set_xlabel("Observation Nr.")
+        self.mse_ax.set_ylabel("Absolute Error")
         self.mse_ax.legend()
         self.mse_ax.grid(True)
 
         # Update the x-axis to reflect the actual prediction numbers
         actual_x_ticks = np.arange(
-            len(self.errors) - len(rmse_to_plot), len(self.errors)
+            len(self.errors) - len(errors_to_plot) + 30, len(self.errors) + 30
         )
-        tick_interval = max(
-            1, len(rmse_to_plot) // 6
-        )  # Adjust dynamically based on data length
+        tick_interval = 1
         self.mse_ax.set_xticks(x_values[::tick_interval])
         self.mse_ax.set_xticklabels(actual_x_ticks[::tick_interval])
 
