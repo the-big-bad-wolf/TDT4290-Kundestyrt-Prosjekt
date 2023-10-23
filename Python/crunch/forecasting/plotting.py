@@ -69,9 +69,7 @@ class Plotting:
         actual_x_ticks = np.arange(
             len(standardized_data) - len(data_to_plot), len(standardized_data)
         )
-        tick_interval = max(
-            1, len(data_to_plot) // 6
-        )  # Adjust dynamically based on data length
+        tick_interval = 1  # Adjust dynamically based on data length
         self.ax.set_xticks(np.arange(0, len(data_to_plot), tick_interval))
         self.ax.set_xticklabels(actual_x_ticks[::tick_interval])
 
@@ -129,9 +127,7 @@ class Plotting:
         actual_x_ticks = np.arange(
             len(self.errors) - len(errors_to_plot) + 30, len(self.errors) + 30
         )
-        tick_interval = max(
-            1, len(errors_to_plot) // 6
-        )  # Adjust dynamically based on data length
+        tick_interval = 1
         self.mse_ax.set_xticks(x_values[::tick_interval])
         self.mse_ax.set_xticklabels(actual_x_ticks[::tick_interval])
 
