@@ -1,11 +1,13 @@
 import * as WebSocket from "ws";
 import {
   offerHelpNotification,
+  initializeHelpButton,
   pauseNotification,
-  updateStatusBarData,
 } from "./extension";
 
 export function setUp() {
+  let initialMessage = true;
+
   const ws = new WebSocket("ws://localhost:8080");
 
   ws.on("error", console.error);
@@ -15,6 +17,11 @@ export function setUp() {
   });
 
   ws.on("message", function message(data) {
+    if (initialMessage) {
+      initialMessage = false;
+      initializeHelpButton();
+    }
+
     console.log("received: %s", data);
 
     let JSONData = JSON.parse(data.toString());
@@ -26,7 +33,5 @@ export function setUp() {
     /*if (JSONData["Is stressed"] == "True") {
       offerPauseNotification()
     }*/
-
-    updateStatusBarData(data);
   });
 }

@@ -4,7 +4,6 @@ import * as vscode from "vscode";
 import { setUp } from "./listener";
 import * as fs from "fs";
 import * as path from "path";
-import { RawData } from "ws";
 
 let statusBarItem: vscode.StatusBarItem;
 
@@ -38,53 +37,61 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(statusBarItem);
 
-  //logs code every five seconds
-  setInterval(() => {
-    const editor = vscode.window.activeTextEditor;
-    const highlighted = editor!.document.getText();
-    const now = new Date().getTime() / 1000;
-    const data = `${now},\n${highlighted}\n`;
-
-    //comment this out if you dont want to log everytime you activate the extension
-    log(data);
-  }, 5000);
-
-  context.subscriptions.push(disposable);
-}
-
-export function updateStatusBarData(data: RawData) {
-  /**
-   * Updates the statusbar with the received data
-   * @param {RawData} data - the data to be displayed in statusbar
-   */
-
-  let outputJson = JSON.parse(data.toString());
-
-  statusBarItem.text =
-    "cognitive load: " + outputJson["Current cognitive load"];
-}
-
-function log(data: string) {
-  /**
-   * Logs the code of the current open file to a csv file.
-   * @param {string} data - the data to be logged
-   */
-
+  //create file path to where the data will be logged
   let today = new Date();
-
   let outputPath = path.join(
     __dirname,
     "../../vsCodeOutput/vscodeData-" +
       today.toISOString().slice(0, 10) +
       today.getHours() +
       today.getMinutes() +
+      today.getSeconds() +
       ".csv"
   );
+
+  //logs code every five seconds
+  setInterval(() => {
+    const editor = vscode.window.activeTextEditor;
+    const highlighted = editor!.document.getText();
+
+    const now = new Date().getTime() / 1000;
+    const data = `${now},"${highlighted}"\n`;
+
+    //comment this out if you dont want to log everytime you activate the extension
+    log(outputPath, data);
+  }, 5000);
+
+  context.subscriptions.push(disposable);
+}
+
+export function initializeHelpButton() {
+  /**
+   * Creates a button in the bottom right corner of the screen
+   * that will open the copilot chat when clicked
+   */
+  statusBarItem.text = `Help me!`;
+
+  //command to open copilot chat
+  const helpCommand = "extension.help";
+  vscode.commands.registerCommand(helpCommand, () => {
+    activateCopilotChat();
+  });
+
+  //set the command for the button
+  statusBarItem.command = helpCommand;
+}
+
+function log(outputPath: string, data: string) {
+  /**
+   * Logs the code of the current open file to a csv file.
+   * @param {string} outputPath - where the data should be logged
+   * @param {string} data - the data to be logged
+   */
 
   ensureDirectoryExistence(outputPath);
 
   try {
-    fs.appendFileSync(outputPath, data + "\n\n");
+    fs.appendFileSync(outputPath, data);
   } catch (err) {
     console.error(err);
   }
@@ -97,7 +104,7 @@ function ensureDirectoryExistence(filePath: string) {
    */
   var dirname = path.dirname(filePath);
   if (fs.existsSync(dirname)) {
-    return true;
+    return;
   }
   ensureDirectoryExistence(dirname);
   fs.mkdirSync(dirname);
@@ -114,7 +121,7 @@ export async function offerHelpNotification() {
     timeHelpPropmtWasActivated = now;
 
     const selection = await vscode.window.showWarningMessage(
-      "Do you want some help with that?",
+      "Would you like help with your task?",
       "Yes, please",
       "No, thank you"
     );
@@ -137,11 +144,11 @@ export function pauseNotification() {
    */
   let now = new Date().getTime();
 
-  //only prompt if five minutes since last prompt
-  if (now - timePausePropmtWasActivated > 5 * 60 * 1000) {
+  //only prompt if two minutes since last prompt
+  if (now - timePausePropmtWasActivated > 2 * 60 * 1000) {
     timePausePropmtWasActivated = now;
     vscode.window.showWarningMessage(
-      "Hey there, you seem stressed. Maybe its time to take a break?"
+      "You are approaching a level of stress that can be detrimental to your task. It might be time to take a break."
     );
   }
 }
