@@ -87,10 +87,6 @@ class Plotting:
             new_value (float: the next actual value
             forecast (np.list): list consisting of the next 10 forecasted values
         """
-        # Shift all rows down
-        self.forecast_matrix[1:] = self.forecast_matrix[:-1]
-        # Add the new forecast to the top row
-        self.forecast_matrix[0] = forecast
 
         # Compute the average forecast for the next time step
         left_column_sum = np.sum(self.forecast_matrix[:, 0])
@@ -108,6 +104,10 @@ class Plotting:
         # Increment the counter until the number of predicted steps is reached
         if self.counter < 10:
             self.counter += 1
+        # Shift all rows down
+        self.forecast_matrix[1:] = self.forecast_matrix[:-1]
+        # Add the new forecast to the top row
+        self.forecast_matrix[0] = forecast
 
     def plot_error(self):
         self.mse_ax.clear()
