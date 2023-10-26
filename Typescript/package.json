@@ -16,8 +16,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "extension.showData",
-        "title": "Show Data"
+        "command": "extension.AIInitiatedHelp",
+        "title": "AI Initiated Help"
+      },
+      {
+        "command": "extension.UserInitiatedHelp",
+        "title": "User Initiated Help"
       }
     ]
   },
