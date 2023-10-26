@@ -6,11 +6,10 @@ from crunch import util
 
 class Plotting:
     def __init__(self):
-        self.old_forecast = None
         self.errors = []
-        self.counter = 0
-        self.averages = []
+        self.forecast_averages = []
         self.forecast_matrix = np.zeros((10, 10))  # 10 forecasts, 10 values each
+        self.counter = 0
         self.fig, (self.ax, self.mse_ax) = plt.subplots(2, 1, figsize=(10, 12))
         self.nr_observations_to_plot = int(
             util.config("forecasting", "observations_to_plot")
@@ -28,10 +27,10 @@ class Plotting:
         """
 
         self.ax.clear()  # Reset the plot
-        if self.averages == []:
-            self.averages = data.tolist()
+        if self.forecast_averages == []:
+            self.forecast_averages = data.tolist()
         # Only consider the last 30 items
-        averages_to_plot = self.averages[-self.nr_observations_to_plot :]
+        averages_to_plot = self.forecast_averages[-len(data) :]
 
         # Plot the data
         self.ax.plot(data, label="Observed Value", color="blue")
@@ -99,10 +98,10 @@ class Plotting:
         # Use min to handle cases where counter < 10
 
         # Append the average forecast to the averages list
-        self.averages.append(average_forecast)
+        self.forecast_averages.append(average_forecast)
 
         # Use the average forecast to compute the squared error
-        error = abs(new_value - self.averages[-1])
+        error = abs(new_value - self.forecast_averages[-1])
         self.errors.append(error)
         self.plot_error()
 
