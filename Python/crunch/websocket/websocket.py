@@ -26,7 +26,7 @@ class WebSocketServer:
                 df = pd.read_csv(file_path)
 
                 # If the predictor hasn't been instantiated yet, do it now
-                if self.predictor is None and len(df.index) - 1 >= baseline_items:
+                if self.predictor is None and len(df.index) >= baseline_items:
                     self.predictor = CognitiveLoadPredictor(
                         df.iloc[:baseline_items, 1].values.astype(float)
                     )
