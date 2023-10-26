@@ -18,7 +18,7 @@ class WebSocketServer:
         if not os.path.exists("crunch/output"):
             os.makedirs("crunch/output")
 
-        baseline_items = 30
+        baseline_items = int(util.config("websocket", "baseline_items"))
 
         async for changes in awatch("./crunch/output/"):
             for a in changes:
@@ -26,7 +26,7 @@ class WebSocketServer:
                 df = pd.read_csv(file_path)
 
                 # If the predictor hasn't been instantiated yet, do it now
-                if self.predictor is None and len(df.index) + 1 >= baseline_items:
+                if self.predictor is None and len(df.index) - 1 >= baseline_items:
                     self.predictor = CognitiveLoadPredictor(
                         df.iloc[:baseline_items, 1].values.astype(float)
                     )

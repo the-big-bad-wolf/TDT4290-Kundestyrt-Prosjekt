@@ -1,9 +1,9 @@
+import warnings
 import numpy as np
 from statsmodels.tsa.arima.model import ARIMA
-import warnings
+from crunch import util
 
-# Ignore warnings
-# Fryktelig mange warnings fra AIC-estimeringen
+
 warnings.filterwarnings("ignore")
 
 
@@ -13,8 +13,10 @@ class ARMAClass:
         self.p, self.q = self.estimate_order()
         self.model = ARIMA(self.data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
-        self.old_forecast = None
         self.counter = 0
+        self.items_in_forecasting = int(
+            util.config("forecasting", "items_in_forecasting")
+        )
 
     def estimate_order(self):
         """
@@ -55,7 +57,7 @@ class ARMAClass:
             self.counter = 0
             self.estimate_order()
         self.counter += 1
-        self.data = np.append(self.data[-30:], new_value)
+        self.data = np.append(self.data[-self.items_in_forecasting + 1 :], new_value)
         self.model = ARIMA(self.data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
 

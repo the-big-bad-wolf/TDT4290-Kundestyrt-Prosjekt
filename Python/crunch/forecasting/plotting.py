@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from crunch import util
+
 
 class Plotting:
     def __init__(self):
@@ -10,6 +12,11 @@ class Plotting:
         self.averages = []
         self.forecast_matrix = np.zeros((10, 10))  # 10 forecasts, 10 values each
         self.fig, (self.ax, self.mse_ax) = plt.subplots(2, 1, figsize=(10, 12))
+        self.observations_to_plot = int(
+            util.config("forecasting", "observations_to_plot")
+        )
+        self.baseline_items = int(util.config("websocket", "baseline_items"))
+
         plt.subplots_adjust(hspace=0.5)
         plt.ion()
 
@@ -24,8 +31,8 @@ class Plotting:
         if self.averages == []:
             self.averages = standardized_data.tolist()
         # Only consider the last 30 items
-        data_to_plot = standardized_data[-30:]
-        averages_to_plot = self.averages[-30:]
+        data_to_plot = standardized_data[-self.observations_to_plot :]
+        averages_to_plot = self.averages[-self.observations_to_plot :]
 
         # Plot the data
         self.ax.plot(data_to_plot, label="Observed Value", color="blue")
@@ -112,7 +119,7 @@ class Plotting:
         self.mse_ax.clear()
 
         # Only consider the last 30 error values
-        errors_to_plot = self.errors[-30:]
+        errors_to_plot = self.errors[-self.observations_to_plot :]
         x_values = np.arange(len(errors_to_plot))
 
         self.mse_ax.plot(x_values, errors_to_plot, label="Error", color="red")
@@ -125,7 +132,8 @@ class Plotting:
 
         # Update the x-axis to reflect the actual prediction numbers
         actual_x_ticks = np.arange(
-            len(self.errors) - len(errors_to_plot) + 30, len(self.errors) + 30
+            len(self.errors) - len(errors_to_plot) + self.baseline_items,
+            len(self.errors) + self.baseline_items,
         )
         tick_interval = 1
         self.mse_ax.set_xticks(x_values[::tick_interval])
