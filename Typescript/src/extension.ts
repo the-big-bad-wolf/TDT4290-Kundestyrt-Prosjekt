@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { setUp } from "./listener";
 import * as fs from "fs";
 import * as path from "path";
+import { RawData } from "ws";
 
 let statusBarItem: vscode.StatusBarItem;
 
@@ -14,23 +15,24 @@ let timePausePropmtWasActivated = new Date().getTime();
 export function activate(context: vscode.ExtensionContext) {
   console.log("Congratulations, your extension is now active!");
 
-  const disposable = vscode.commands.registerCommand(
-    "extension.showData",
+  const AIInitiatedHelp = vscode.commands.registerCommand(
+    "extension.AIInitiatedHelp",
     () => {
-      // The code you place here will be executed every time your command is executed
-      // Display a message box to the user
-      setUp();
+      //call the setup of the websocket telling it that it should use the AI initiated help,
+      //and set up the statusbar
+      setUp(true);
+      setUpStatusbar();
+    },
+    context.subscriptions
+  );
 
-      statusBarItem = vscode.window.createStatusBarItem(
-        vscode.StatusBarAlignment.Right,
-        100
-      );
-      statusBarItem.text = `Creating baseline $(loading~spin)`;
-      statusBarItem.show();
-
-      vscode.window.showInformationMessage(
-        "Will now begin to create a baseline, just relax for a couple of minutes"
-      );
+  const UserInitiatedHelp = vscode.commands.registerCommand(
+    "extension.UserInitiatedHelp",
+    () => {
+      //call the setup of the websocket telling it that it should not use the AI initiated help,
+      //and set up the statusbar
+      setUp(false);
+      setUpStatusbar();
     },
     context.subscriptions
   );
@@ -61,7 +63,8 @@ export function activate(context: vscode.ExtensionContext) {
     log(outputPath, data);
   }, 5000);
 
-  context.subscriptions.push(disposable);
+  context.subscriptions.push(AIInitiatedHelp);
+  context.subscriptions.push(UserInitiatedHelp);
 }
 
 export function initializeHelpButton() {
@@ -79,6 +82,35 @@ export function initializeHelpButton() {
 
   //set the command for the button
   statusBarItem.command = helpCommand;
+}
+
+function setUpStatusbar() {
+  /**
+   * Set up the initial statusbar that is displayed during the creation of the baseline
+   */
+
+  statusBarItem = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    100
+  );
+  statusBarItem.text = `Creating baseline $(loading~spin)`;
+  statusBarItem.show();
+
+  vscode.window.showInformationMessage(
+    "Will now begin to create a baseline, just relax for a couple of minutes"
+  );
+}
+
+export function updateStatusBarData(data: RawData) {
+  /**
+   * updates the statusbar with the received data
+   * @param {RawData} data - the data to be displayed in statusbar
+   */
+
+  let outputJson = JSON.parse(data.toString());
+
+  statusBarItem.text =
+    "cognitive load: " + outputJson["Current cognitive load"];
 }
 
 function log(outputPath: string, data: string) {
@@ -116,8 +148,8 @@ export async function offerHelpNotification() {
    */
   let now = new Date().getTime();
 
-  //only prompt if it is five minutes since last promt
-  if (now - timeHelpPropmtWasActivated > 5 * 60 * 1000) {
+  //only prompt if it is two minutes since last promt
+  if (now - timeHelpPropmtWasActivated > 2 * 1000) {
     timeHelpPropmtWasActivated = now;
 
     const selection = await vscode.window.showWarningMessage(
