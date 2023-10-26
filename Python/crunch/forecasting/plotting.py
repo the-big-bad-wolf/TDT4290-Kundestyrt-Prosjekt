@@ -12,7 +12,7 @@ class Plotting:
         self.averages = []
         self.forecast_matrix = np.zeros((10, 10))  # 10 forecasts, 10 values each
         self.fig, (self.ax, self.mse_ax) = plt.subplots(2, 1, figsize=(10, 12))
-        self.observations_to_plot = int(
+        self.nr_observations_to_plot = int(
             util.config("forecasting", "observations_to_plot")
         )
         self.baseline_items = int(util.config("websocket", "baseline_items"))
@@ -20,7 +20,7 @@ class Plotting:
         plt.subplots_adjust(hspace=0.5)
         plt.ion()
 
-    def plot(self, standardized_data, forecast):
+    def plot(self, data, forecast, observation_length):
         """
         Args:
                 new_value (float): newest actual measured value
@@ -29,13 +29,12 @@ class Plotting:
 
         self.ax.clear()  # Reset the plot
         if self.averages == []:
-            self.averages = standardized_data.tolist()
+            self.averages = data.tolist()
         # Only consider the last 30 items
-        data_to_plot = standardized_data[-self.observations_to_plot :]
-        averages_to_plot = self.averages[-self.observations_to_plot :]
+        averages_to_plot = self.averages[-self.nr_observations_to_plot :]
 
         # Plot the data
-        self.ax.plot(data_to_plot, label="Observed Value", color="blue")
+        self.ax.plot(data, label="Observed Value", color="blue")
 
         # Plot the historical average forecast
         self.ax.plot(
@@ -46,20 +45,18 @@ class Plotting:
         )
         # Plot the new value
         self.ax.scatter(
-            len(data_to_plot) - 1,
-            data_to_plot[-1],
+            len(data) - 1,
+            data[-1],
             color="red",
             label="New Value",
         )
 
         # Adjust the forecast_x_values to start from the current data point
-        forecast_x_values = np.arange(
-            len(data_to_plot) - 1, len(data_to_plot) + len(forecast)
-        )
-        forecast_plot = np.append(data_to_plot[-1], forecast)
+        forecast_x_values = np.arange(len(data) - 1, len(data) + len(forecast))
+        forecast = np.append(data[-1], forecast)
         self.ax.plot(
             forecast_x_values,
-            forecast_plot,
+            forecast,
             color="green",
             label="Forecast",
             linestyle="--",
@@ -73,15 +70,13 @@ class Plotting:
         self.ax.grid(True)
 
         # Update the x-axis to reflect the actual data points
-        actual_x_ticks = np.arange(
-            len(standardized_data) - len(data_to_plot), len(standardized_data)
-        )
+        actual_x_ticks = np.arange(observation_length - len(data), observation_length)
         tick_interval = 1  # Adjust dynamically based on data length
-        self.ax.set_xticks(np.arange(0, len(data_to_plot), tick_interval))
+        self.ax.set_xticks(np.arange(0, len(data), tick_interval))
         self.ax.set_xticklabels(actual_x_ticks[::tick_interval])
 
         plt.draw()  # Update figure
-        plt.pause(1)  # Add minor delay to plotting
+        plt.pause(0.5)  # Add minor delay to plotting
 
     def backtest(self, new_value, forecast):
         """Add the forecast to the forecast matrix and compute the mean absolute error.
@@ -119,7 +114,7 @@ class Plotting:
         self.mse_ax.clear()
 
         # Only consider the last 30 error values
-        errors_to_plot = self.errors[-self.observations_to_plot :]
+        errors_to_plot = self.errors[-self.nr_observations_to_plot :]
         x_values = np.arange(len(errors_to_plot))
 
         self.mse_ax.plot(x_values, errors_to_plot, label="Error", color="red")

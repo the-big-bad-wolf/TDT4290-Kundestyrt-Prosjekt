@@ -1,11 +1,8 @@
 import numpy as np
-import warnings
 from crunch.forecasting.arma import ARMAClass
 from crunch.forecasting.garch import GARCHClass
 from crunch.forecasting.plotting import Plotting
-
-# Ignore warnings
-# Fryktelig mange warnings fra AIC-estimeringen
+import crunch.util as util
 
 
 class CognitiveLoadPredictor:
@@ -28,20 +25,28 @@ class CognitiveLoadPredictor:
         Parameters:
         - initial_data (numpy.array): The initial array of cognitive load data.
         """
-        self.raw_data = initial_data
         self.mean_initial = np.mean(initial_data)
         self.std_initial = np.std(initial_data)
         self.standardized_data = self.standardize(initial_data)
         self.ARMAClass = ARMAClass(self.standardized_data)
         self.Plotting = Plotting()
         self.GARCHClass = GARCHClass(self.standardized_data)
+        self.items_in_forecasting = int(
+            util.config("forecasting", "items_in_forecasting")
+        )
+        self.observations_to_plot = int(
+            util.config("forecasting", "observations_to_plot")
+        )
 
     def standardize(self, data):
         return (data - self.mean_initial) / self.std_initial
 
     def update_and_predict(self, new_value):
         standardized_value = self.standardize(new_value)
-        arma_forecast = self.ARMAClass.update_and_predict(standardized_value)
+        self.standardized_data = np.append(self.standardized_data, standardized_value)
+        arma_forecast = self.ARMAClass.update_and_predict(
+            self.standardized_data[-self.items_in_forecasting :]
+        )
         garch_forecast = self.GARCHClass.update_and_predict(
             self.ARMAClass.get_residuals()
         )
@@ -50,8 +55,11 @@ class CognitiveLoadPredictor:
         # arima_result = forecast
         arima_and_garch_combined_forecast = arma_forecast + garch_forecast
 
-        self.standardized_data = np.append(self.standardized_data, standardized_value)
-        self.Plotting.plot(self.standardized_data, arima_and_garch_combined_forecast)
+        self.Plotting.plot(
+            self.standardized_data[-self.observations_to_plot :],
+            arima_and_garch_combined_forecast,
+            len(self.standardized_data),
+        )
         self.Plotting.backtest(standardized_value, arima_and_garch_combined_forecast)
 
         is_outlier = np.any((np.abs(arima_and_garch_combined_forecast) >= 2)) or np.abs(
