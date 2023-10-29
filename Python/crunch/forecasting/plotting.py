@@ -69,7 +69,9 @@ class Plotting:
         self.ax.grid(True)
 
         # Update the x-axis to reflect the actual data points
-        actual_x_ticks = np.arange(observation_length - len(data), observation_length)
+        actual_x_ticks = np.arange(
+            observation_length - len(data) + 1, observation_length + 1
+        )
         tick_interval = 1  # Adjust dynamically based on data length
         self.ax.set_xticks(np.arange(0, len(data), tick_interval))
         self.ax.set_xticklabels(actual_x_ticks[::tick_interval])
@@ -89,7 +91,7 @@ class Plotting:
         """
 
         # Compute the average forecast for the next time step
-        left_column_sum = np.sum(self.forecast_matrix[:, 0])
+        left_column_sum = np.trace(self.forecast_matrix)
         average_forecast = left_column_sum / min(self.counter + 1, 10)
         # Use min to handle cases where counter < 10
 
@@ -126,8 +128,8 @@ class Plotting:
 
         # Update the x-axis to reflect the actual prediction numbers
         actual_x_ticks = np.arange(
-            len(self.errors) - len(errors_to_plot) + self.baseline_items,
-            len(self.errors) + self.baseline_items,
+            len(self.errors) - len(errors_to_plot) + self.baseline_items + 1,
+            len(self.errors) + self.baseline_items + 1,
         )
         tick_interval = 1
         self.mse_ax.set_xticks(x_values[::tick_interval])
