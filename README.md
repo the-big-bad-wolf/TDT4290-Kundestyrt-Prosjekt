@@ -37,3 +37,17 @@ Run main.py in the Python folder in order to have the extension actually show th
 ### Python tests
 
 In the terminal, in the python folder, run the command python -m pytest
+
+## How to install
+
+Clone the repo, or otherwise download the extension-0.0.1.vsix file. In VSCode, go to the extension view, and click on the three dots in the right upper corner. Chose to install as vsix, and locate the vsix file on your computer. Alternatively, in the terminal, run the command
+
+```
+code--install-extension path\extension-0.0.1.vsix
+```
+
+where path is the path to where the vsix file is on your computer.
+
+You still need to be running the backend in the same way as in the section above to get the data from the eye-tracker.
+
+When the extension is installed, it works as any other extension, and you can run the commands from the section "How to run".
