@@ -55,6 +55,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "node-notifier": "^10.0.1",
     "ws": "^8.14.2"
   }
 }

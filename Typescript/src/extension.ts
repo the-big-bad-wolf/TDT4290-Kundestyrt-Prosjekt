@@ -11,14 +11,6 @@ export let statusBarItem: vscode.StatusBarItem;
 let timeHelpPropmtWasActivated = new Date().getTime();
 let timePausePropmtWasActivated = new Date().getTime();
 
-export function setTimeHelpPropmtWasActivated(time: number) {
-  timeHelpPropmtWasActivated = time;
-}
-
-export function setStatusBarItem(statusBarItem: vscode.StatusBarItem) {
-  statusBarItem = statusBarItem;
-}
-
 // This method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
   console.log("Congratulations, your extension is now active!");
@@ -109,10 +101,6 @@ export function setUpStatusbar() {
   );
 }
 
-export function getStatusBarItem() {
-  return statusBarItem;
-}
-
 export function updateStatusBarData(data: RawData) {
   /**
    * updates the statusbar with the received data
@@ -179,7 +167,7 @@ export function activateCopilotChat() {
   vscode.commands.executeCommand("github.copilot.interactiveEditor.explain");
 }
 
-export function pauseNotification(timePausePropmtWasActivated: number) {
+export function pauseNotification() {
   /**
    * Creates a notification to the user telling them they should take a break
    */
@@ -192,6 +180,35 @@ export function pauseNotification(timePausePropmtWasActivated: number) {
       "You are approaching a level of stress that can be detrimental to your task. It might be time to take a break."
     );
   }
+
+  const notifier = require('node-notifier');
+  
+  const num = "Num: " + (now - timePausePropmtWasActivated );
+  notifier.notify({
+    title: 'Notification Title',
+    message: num,
+  });
+
+}
+
+//Get statusbar item. Used for testing.
+export function getStatusBarItem() {
+  return statusBarItem;
+}
+
+// Set Pause Notification. Used for testing.
+export function setPauseNotification(input: number) {
+  timePausePropmtWasActivated = input;
+}
+
+// Set Time Help Prompt. Used for testing.
+export function setTimeHelpPropmtWasActivated(time: number) {
+  timeHelpPropmtWasActivated = time;
+}
+
+// Set statusBarItem. Used for testing.
+export function setStatusBarItem(statusBarItem: vscode.StatusBarItem) {
+  statusBarItem = statusBarItem;
 }
 
 // This method is called when your extension is deactivated

@@ -1,8 +1,21 @@
-import { activateCopilotChat, deactivate, initializeHelpButton, offerHelpNotification, pauseNotification, setUpStatusbar, setTimeHelpPropmtWasActivated, getStatusBarItem, updateStatusBarData, log, ensureDirectoryExistence  } from "../../extension";
+import {
+  activateCopilotChat,
+  deactivate,
+  initializeHelpButton,
+  offerHelpNotification,
+  pauseNotification,
+  setUpStatusbar,
+  setTimeHelpPropmtWasActivated,
+  getStatusBarItem,
+  updateStatusBarData,
+  log,
+  setPauseNotification,
+} from "../../extension";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as assert from "assert";
 import * as fs from "fs";
+import { on } from "ws";
 
 /**
  * Extension Test Suite.
@@ -28,39 +41,44 @@ suite("Extension Test Suite", () => {
     sandbox.restore();
   });
 
+  /**
+   * Test case for the `deactivate` function to verify that it does nothing and doesn't throw an error.
+   */
   test("deactivate should do nothing", () => {
     assert.doesNotThrow(() => deactivate());
   });
 
   /**
-   * Test case for `pauseNotification` function when the last prompt was more than 2 minutes ago.
-   */
-  test("pauseNotification should show a warning message if the last prompt was more than 2 minutes ago", () => {
-    // Arrange
-    const showWarningMessageStub = sandbox.stub(vscode.window, "showWarningMessage");
-    const twoMinutesAgo = new Date().getTime() - (2 * 60 * 1000 + 1);
+ * Test case for `pauseNotification` function when the last prompt was more than 2 minutes ago.
+ */
+test("pauseNotification should show a warning message if the last prompt was more than 2 minutes ago", () => {
+  // Arrange
+  setPauseNotification(new Date().getTime() - (2 * 60 * 1000 + 1));  // set to more than 2 minutes ago
+  const showWarningMessageStub = sandbox.stub(vscode.window, "showWarningMessage");
 
-    // Act
-    pauseNotification(twoMinutesAgo);
+  // Act
+  pauseNotification();
 
-    // Assert
-    assert.strictEqual(showWarningMessageStub.called, true, "Expected a warning message to be shown");
-  });
+  // Assert
+  assert.strictEqual(showWarningMessageStub.called, true, "Expected a warning message to be shown");
+});
 
-  /**
-   * Test case for `pauseNotification` function when the last prompt was less than 2 minutes ago.
-   */
-  test("pauseNotification should not show a warning message if the last prompt was less than 2 minutes ago", () => {
-    // Arrange
-    const showWarningMessageStub = sandbox.stub(vscode.window, "showWarningMessage");
-    const oneMinuteAgo = new Date().getTime() - (1 * 60 * 1000);
+/**
+ * Test case for `pauseNotification` function when the last prompt was less than 2 minutes ago.
+ */
+test("pauseNotification should not show a warning message if the last prompt was less than 2 minutes ago", () => {
 
-    // Act
-    pauseNotification(oneMinuteAgo);
+  // Arrange
+  setPauseNotification(new Date().getTime() - (2 * 60 * 1000 - 1));  // set to less than 2 minutes ago
+  const showWarningMessageStub = sandbox.stub(vscode.window, "showWarningMessage");
+  
+  // Act
+  pauseNotification();
 
-    // Assert
-    assert.strictEqual(showWarningMessageStub.called, false, "Expected no warning message to be shown");
-  });
+  // Assert
+  assert.strictEqual(showWarningMessageStub.called, false, "Expected no warning message to be shown");
+});
+
 
   /**
    * Test case for `activateCopilotChat` function to ensure it executes the correct command.
@@ -97,8 +115,11 @@ suite("Extension Test Suite", () => {
     assert.deepStrictEqual(showWarningMessageStub.firstCall.args[2], noOption.title);
   });
 
+  /**
+   * Test case for `initializeHelpButton` function to create and display a button.
+   */
   test("initializeHelpButton should create and display button", () => {
-    // Initialize statusbar
+    // Arrange. Initialize statusbar
     setUpStatusbar();
     
     // Act
@@ -110,17 +131,17 @@ suite("Extension Test Suite", () => {
   });
 
   test("updateStatusBarData should update status bar text with cognitive load", () => {
+    //Arrange
     // Define your data as a JavaScript object
     const data = {
       "Current cognitive load": "low"
     };
-
     // Convert the JavaScript object to a JSON string
     const jsonData = JSON.stringify(data);
-
     // Create a Buffer from the JSON string
     const bufferData = Buffer.from(jsonData);
 
+    //Act
     // Now you can use the bufferData variable
     updateStatusBarData(bufferData);
 
@@ -128,6 +149,9 @@ suite("Extension Test Suite", () => {
     assert.strictEqual(getStatusBarItem().text, "cognitive load: low", "Expected status bar text to be 'low'");
   });
 
+  /**
+   * Test case for `log` function to append data to a file.
+   */
   test("log should append data to file", () => {
     // Arrange
     const outputPath = "path/to/file";
