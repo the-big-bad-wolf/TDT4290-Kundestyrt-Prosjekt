@@ -1,17 +1,30 @@
-import { Server as MockServer } from "mock-socket";
+import * as sinon from "sinon";
 import { setUp } from "../../listener";
+import * as WebSocket from "ws";
 
-test("WebSocket message handling", (done) => {
-  const mockServer = new MockServer("ws://localhost:8080");
+suite("Listener Test Suite", () => {
+  let sandbox: sinon.SinonSandbox;
+  let server: WebSocket.Server;
+  let client: WebSocket;
 
-  mockServer.on("connection", (socket: any) => {
-    socket.send("Your mock message here");
+  setup(() => {
+    sandbox = sinon.createSandbox();
   });
 
-  setUp(true);
+  teardown(() => {
+    sandbox.restore();
+    server.close();
+    client.close();
+  });
 
-  // Assertions related to the expected behavior upon receiving the mock message
-  // ...
-
-  mockServer.stop(done);
+  test("WebSocket should connect to server", (done) => {
+    server = new WebSocket.Server({ port: 0 }, () => {
+      const port = (server.address() as WebSocket.AddressInfo).port;
+      client = new WebSocket(`ws://localhost:${port}`);
+      client.on("open", () => {
+        done();
+      });
+      setUp(false);
+    });
+  });
 });
