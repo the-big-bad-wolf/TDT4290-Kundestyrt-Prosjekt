@@ -16,6 +16,8 @@ class ARMAClass:
         self.old_forecast = None
         self.counter = 0
         self.baselineLenght = baseline_length
+        self.forecast_matrix = np.zeros((10, 10))  # 10 forecasts, 10 values each
+        self.averages = []  # To store the average forecasts
 
     def estimate_order(self):
         """

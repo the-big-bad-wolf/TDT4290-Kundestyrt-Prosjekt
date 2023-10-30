@@ -2,12 +2,10 @@ import csv
 import numpy as np
 from arma import ARMAClass
 from garch import GARCHClass
-from plotting import Plotting
 
 class EvaluateForecasting:
 
     def __init__(self):
-        self.plotting = Plotting()
         self.arma_forecast_matrix = np.zeros((10, 10))  # Assuming a 10-step forecast
         self.garch_forecast_matrix = np.zeros((10, 10))  # Assuming a 10-step forecast
         self.armagarch_forecast_matrix = np.zeros((10, 10))  # Assuming a 10-step forecast
@@ -37,8 +35,11 @@ class EvaluateForecasting:
         current_arma_forecast = diagonal_sum/min(self.counter, 10)  # Average of the diagonal
         return current_arma_forecast
 
-    def calculate_mae(self, actual, predicted):
-        return np.mean(np.abs(predicted - actual))
+    def reset_matrices(self):
+        self.arma_forecast_matrix = np.zeros((10, 10))
+        self.garch_forecast_matrix = np.zeros((10, 10))
+        self.armagarch_forecast_matrix = np.zeros((10, 10))
+        self.counter = 0
 
     def read_csv_and_predict(self, file_path):
         # Store results
@@ -49,6 +50,7 @@ class EvaluateForecasting:
             reader = csv.reader(file)
             next(reader)  # Skip the header row
             data_list = list(reader)
+            
 
         # Loop through different baseline lengths
         for baseline_length in range(28, 29):  # Adjust range as needed
@@ -77,7 +79,6 @@ class EvaluateForecasting:
                                 garch_combined = GARCHClass(arma_model.get_residuals(), p_garch, q_garch)
 
                                 actual_values = []
-                                arma_standalone_maes = []
                                 garch_standalone_maes = []
                                 armagarch_combined_maes = []
 
@@ -89,9 +90,10 @@ class EvaluateForecasting:
                                     actual_values.append(actual_value)
 
                                     # Update ARMA model with the new data point and generate a forecast
+                                    arma_standalone_maes = []
                                     arma_forecast = arma_model.update_and_predict(standardized_value)
-                                    avg_arma_standalone_forecast  = self.update_arma_forecast_matrix(arma_forecast)
-                                    arma_standalone_maes.append(actual_value- avg_arma_standalone_forecast )
+                                    avg_arma_standalone_forecast = self.update_arma_forecast_matrix(arma_forecast)
+                                    arma_standalone_maes.append(standardized_value- avg_arma_standalone_forecast )
                                     
                                     # Update standalone GARCH model with the new data point and generate a forecast
                                     # garch_forecast = garch_standalone.update_and_predict(standardized_value) # Husk å fjern evaluate fra garch
@@ -100,9 +102,10 @@ class EvaluateForecasting:
                                     # Update combined GARCH model with the new data point and generate a forecast
                                     armagarch_combined_forecast = garch_combined.update_and_predict(arma_model.get_residuals())
                                     avg_armagarch_combined_forecast = self.update_armagarch_forecast_matrix(armagarch_combined_forecast)
-                                    armagarch_combined_maes.append(actual_value - avg_armagarch_combined_forecast + avg_arma_standalone_forecast)
+                                    armagarch_combined_maes.append(standardized_value - avg_armagarch_combined_forecast + avg_arma_standalone_forecast)
                                     
-                                    
+                                self.reset_matrices()  # Reset the matrices for the next iteration
+                                
                                 # Store the result along with the parameters used
                                 print('Appending result')
                                 results.append({
