@@ -22,6 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
       //and set up the statusbar
       setUp(true);
       setUpStatusbar();
+      log();
     },
     context.subscriptions
   );
@@ -33,35 +34,12 @@ export function activate(context: vscode.ExtensionContext) {
       //and set up the statusbar
       setUp(false);
       setUpStatusbar();
+      log();
     },
     context.subscriptions
   );
 
   context.subscriptions.push(statusBarItem);
-
-  //create file path to where the data will be logged
-  let today = new Date();
-  let outputPath = path.join(
-    __dirname,
-    "../../vsCodeOutput/vscodeData-" +
-      today.toISOString().slice(0, 10) +
-      today.getHours() +
-      today.getMinutes() +
-      today.getSeconds() +
-      ".csv"
-  );
-
-  //logs code every five seconds
-  setInterval(() => {
-    const editor = vscode.window.activeTextEditor;
-    const highlighted = editor!.document.getText();
-
-    const now = new Date().getTime() / 1000;
-    const data = `${now},"${highlighted}"\n`;
-
-    //comment this out if you dont want to log everytime you activate the extension
-    log(outputPath, data);
-  }, 5000);
 
   context.subscriptions.push(AIInitiatedHelp);
   context.subscriptions.push(UserInitiatedHelp);
@@ -113,12 +91,36 @@ export function updateStatusBarData(data: RawData) {
     "cognitive load: " + outputJson["Current cognitive load"];
 }
 
-function log(outputPath: string, data: string) {
+function log() {
   /**
    * Logs the code of the current open file to a csv file.
-   * @param {string} outputPath - where the data should be logged
-   * @param {string} data - the data to be logged
    */
+
+  //create file path to where the data will be logged
+  let today = new Date();
+  const dir = path.join(os.homedir(), "Desktop");
+  let outputPath = path.join(
+    dir,
+    "vsCodeOutput/vscodeData-" +
+      today.toISOString().slice(0, 10) +
+      today.getHours() +
+      today.getMinutes() +
+      today.getSeconds() +
+      ".csv"
+  );
+
+  //create the csv file and write the header
+  if (!fs.existsSync(outputPath)) {
+    fs.writeFileSync(outputPath, "time,code\n");
+  }
+
+  //logs code every five seconds
+  setInterval(() => {
+    const editor = vscode.window.activeTextEditor;
+    if (editor?.document) {
+      const highlighted = editor!.document.getText();
+      const now = new Date().getTime() / 1000;
+      const data = `${now},"${highlighted}"\n`;
 
   ensureDirectoryExistence(outputPath);
 
@@ -127,6 +129,8 @@ function log(outputPath: string, data: string) {
   } catch (err) {
     console.error(err);
   }
+    }
+  }, 5000);
 }
 
 function ensureDirectoryExistence(filePath: string) {
