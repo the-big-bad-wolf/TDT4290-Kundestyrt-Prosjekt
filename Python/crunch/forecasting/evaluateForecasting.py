@@ -53,9 +53,9 @@ class EvaluateForecasting:
             
 
         # Loop through different baseline lengths
-        for baseline_length in range(28, 29):  # Adjust range as needed
+        for forecast_length in range(28, 29):  # Adjust range as needed
             # Prepare the baseline data
-            baseline_data = [float(row[1]) for row in data_list[:baseline_length]]
+            baseline_data = [float(row[1]) for row in data_list[:10]]
             baseline_array = np.array(baseline_data)
 
             # Standardize the baseline data
@@ -72,28 +72,27 @@ class EvaluateForecasting:
                     for p_garch in range(2, 6):
                         for q_garch in range(2, 6):
                             try:
-                                self.counter += 1
-                                print(f"Testing with baseline length: {baseline_length}, p_arma: {p_arma}, q_arma: {q_arma}, p_garch: {p_garch}, q_garch: {q_garch}")
+                                print(f"Testing with baseline length: {forecast_length}, p_arma: {p_arma}, q_arma: {q_arma}, p_garch: {p_garch}, q_garch: {q_garch}")
                                 arma_model = ARMAClass(standardized_data, p_arma, q_arma)
                                 garch_standalone = GARCHClass(standardized_data, p_garch, q_garch)
                                 garch_combined = GARCHClass(arma_model.get_residuals(), p_garch, q_garch)
 
-                                actual_values = []
+                                # Initialize the MAE lists
                                 garch_standalone_maes = []
                                 armagarch_combined_maes = []
+                                arma_standalone_maes = []
 
                                 # Continue iterating over the data_list and updating the model
-                                for row in data_list[baseline_length:]:
+                                for row in data_list[forecast_length:]:
+                                    self.counter += 1   
                                     time, value = row  
                                     actual_value = float(value)
                                     standardized_value = self.standardize(actual_value, mean_initial, std_initial)
-                                    actual_values.append(actual_value)
 
                                     # Update ARMA model with the new data point and generate a forecast
-                                    arma_standalone_maes = []
                                     arma_forecast = arma_model.update_and_predict(standardized_value)
                                     avg_arma_standalone_forecast = self.update_arma_forecast_matrix(arma_forecast)
-                                    arma_standalone_maes.append(standardized_value- avg_arma_standalone_forecast )
+                                    arma_standalone_maes.append(standardized_value - avg_arma_standalone_forecast )
                                     
                                     # Update standalone GARCH model with the new data point and generate a forecast
                                     # garch_forecast = garch_standalone.update_and_predict(standardized_value) # Husk å fjern evaluate fra garch
@@ -102,14 +101,14 @@ class EvaluateForecasting:
                                     # Update combined GARCH model with the new data point and generate a forecast
                                     armagarch_combined_forecast = garch_combined.update_and_predict(arma_model.get_residuals())
                                     avg_armagarch_combined_forecast = self.update_armagarch_forecast_matrix(armagarch_combined_forecast)
-                                    armagarch_combined_maes.append(standardized_value - avg_armagarch_combined_forecast + avg_arma_standalone_forecast)
+                                    armagarch_combined_maes.append(standardized_value - avg_armagarch_combined_forecast - avg_arma_standalone_forecast)
                                     
                                 self.reset_matrices()  # Reset the matrices for the next iteration
                                 
                                 # Store the result along with the parameters used
                                 print('Appending result')
                                 results.append({
-                                    'baseline_length': baseline_length,
+                                    'baseline_length': forecast_length,
                                     'p_arma': p_arma,
                                     'q_arma': q_arma,
                                     'p_garch': p_garch,
