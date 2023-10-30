@@ -6,10 +6,18 @@ import * as fs from "fs";
 import * as path from "path";
 import { RawData } from "ws";
 
-let statusBarItem: vscode.StatusBarItem;
+export let statusBarItem: vscode.StatusBarItem;
 
 let timeHelpPropmtWasActivated = new Date().getTime();
 let timePausePropmtWasActivated = new Date().getTime();
+
+export function setTimeHelpPropmtWasActivated(time: number) {
+  timeHelpPropmtWasActivated = time;
+}
+
+export function setStatusBarItem(statusBarItem: vscode.StatusBarItem) {
+  statusBarItem = statusBarItem;
+}
 
 // This method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -84,7 +92,7 @@ export function initializeHelpButton() {
   statusBarItem.command = helpCommand;
 }
 
-function setUpStatusbar() {
+export function setUpStatusbar() {
   /**
    * Set up the initial statusbar that is displayed during the creation of the baseline
    */
@@ -101,6 +109,10 @@ function setUpStatusbar() {
   );
 }
 
+export function getStatusBarItem() {
+  return statusBarItem;
+}
+
 export function updateStatusBarData(data: RawData) {
   /**
    * updates the statusbar with the received data
@@ -113,7 +125,7 @@ export function updateStatusBarData(data: RawData) {
     "cognitive load: " + outputJson["Current cognitive load"];
 }
 
-function log(outputPath: string, data: string) {
+export function log(outputPath: string, data: string) {
   /**
    * Logs the code of the current open file to a csv file.
    * @param {string} outputPath - where the data should be logged
@@ -129,7 +141,7 @@ function log(outputPath: string, data: string) {
   }
 }
 
-function ensureDirectoryExistence(filePath: string) {
+export function ensureDirectoryExistence(filePath: string) {
   /**
    * Checks if the filepath exists, if not it creates the necessary folders
    * @param {string} filePath - path to where you want to create a file
@@ -143,12 +155,8 @@ function ensureDirectoryExistence(filePath: string) {
 }
 
 export async function offerHelpNotification() {
-  /**
-   * Creates a notification to user offering to turn on copilot
-   */
   let now = new Date().getTime();
 
-  //only prompt if it is two minutes since last promt
   if (now - timeHelpPropmtWasActivated > 2 * 1000) {
     timeHelpPropmtWasActivated = now;
 
@@ -166,11 +174,12 @@ export async function offerHelpNotification() {
   }
 }
 
+
 export function activateCopilotChat() {
   vscode.commands.executeCommand("github.copilot.interactiveEditor.explain");
 }
 
-export function pauseNotification() {
+export function pauseNotification(timePausePropmtWasActivated: number) {
   /**
    * Creates a notification to the user telling them they should take a break
    */

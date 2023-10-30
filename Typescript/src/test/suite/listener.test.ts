@@ -1,6 +1,7 @@
 import * as sinon from "sinon";
 import { setUp } from "../../listener";
 import * as WebSocket from "ws";
+import * as assert from "assert";
 
 suite("Listener Test Suite", () => {
   let sandbox: sinon.SinonSandbox;

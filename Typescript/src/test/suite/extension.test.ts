@@ -3,7 +3,6 @@ import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as assert from "assert";
 import * as fs from "fs";
-import { RawData } from "ws";
 
 /**
  * Extension Test Suite.
@@ -33,7 +32,9 @@ suite("Extension Test Suite", () => {
     assert.doesNotThrow(() => deactivate());
   });
 
-  
+  /**
+   * Test case for `pauseNotification` function when the last prompt was more than 2 minutes ago.
+   */
   test("pauseNotification should show a warning message if the last prompt was more than 2 minutes ago", () => {
     // Arrange
     const showWarningMessageStub = sandbox.stub(vscode.window, "showWarningMessage");
@@ -46,6 +47,9 @@ suite("Extension Test Suite", () => {
     assert.strictEqual(showWarningMessageStub.called, true, "Expected a warning message to be shown");
   });
 
+  /**
+   * Test case for `pauseNotification` function when the last prompt was less than 2 minutes ago.
+   */
   test("pauseNotification should not show a warning message if the last prompt was less than 2 minutes ago", () => {
     // Arrange
     const showWarningMessageStub = sandbox.stub(vscode.window, "showWarningMessage");
@@ -58,6 +62,9 @@ suite("Extension Test Suite", () => {
     assert.strictEqual(showWarningMessageStub.called, false, "Expected no warning message to be shown");
   });
 
+  /**
+   * Test case for `activateCopilotChat` function to ensure it executes the correct command.
+   */
   test("activateCopilotChat should execute the correct command", () => {
     // Arrange
     const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand");
@@ -69,15 +76,18 @@ suite("Extension Test Suite", () => {
     assert.strictEqual(executeCommandStub.calledWith("github.copilot.interactiveEditor.explain"), true, "Expected Copilot command to be executed");
   });
   
+  /**
+   * Test case for `offerHelpNotification` function to show a warning message with options.
+   */
   test("offerHelpNotification should show a warning message with the correct options", async () => {
+    // Arrange
     const yesOption: vscode.MessageItem = { title: "Yes, please" };
     const noOption: vscode.MessageItem = { title: "No, thank you" };
     const showWarningMessageStub = sandbox.stub(vscode.window, "showWarningMessage").resolves(yesOption);
   
+    // Act
     // Set timeHelpPropmtWasActivated to more than 2 minutes ago
     setTimeHelpPropmtWasActivated(new Date().getTime() - (2 * 60 * 1000 + 1));
-
-    
     await offerHelpNotification();
   
     // Assert
