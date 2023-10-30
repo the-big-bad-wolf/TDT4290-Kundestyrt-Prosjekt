@@ -20,7 +20,7 @@ class GARCHClass:
         Fitted GARCH model.
     """
 
-    def __init__(self, residuals):
+    def __init__(self, residuals, p,q):
         """
         Initialize the GARCH model.
 
@@ -30,7 +30,7 @@ class GARCHClass:
             Standardized time series data.
         """
         self.residuals = residuals
-        self.p, self.q = self.estimate_order()
+        self.p, self.q = p,q
         self.model = arch_model(
             self.residuals, vol="Garch", p=self.p, q=self.q, rescale=False
         )
