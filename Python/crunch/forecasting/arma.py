@@ -16,8 +16,6 @@ class ARMAClass:
         self.old_forecast = None
         self.counter = 0
         self.baselineLenght = baseline_length
-        self.forecast_matrix = np.zeros((10, 10))  # 10 forecasts, 10 values each
-        self.averages = []  # To store the average forecasts
 
     def estimate_order(self):
         """
@@ -83,30 +81,4 @@ class ARMAClass:
             The residuals from the fitted model.
         """
         return self.model_fit.resid
-
-    def backtest(self, actual_values):
-        """
-        Processes the stored forecasts to generate a consensus forecast for each point,
-        then compares these to actual values to assess performance.
-
-        :param actual_values: List or ndarray of actual observed values corresponding to our forecasted period.
-        :return: Dictionary containing actual values, forecasted consensus values, and error metrics.
-        """
-        # Calculate the 'consensus' forecast for each point
-        consensus_forecasts = np.mean(self.forecast_matrix, axis=0)
-
-        # Now, we have our consensus forecasts, we'll compare these to the actual values.
-        errors = actual_values - consensus_forecasts
-        mae = np.mean(np.abs(errors))  # Mean Absolute Error
-        rmse = np.sqrt(np.mean(errors ** 2))  # Root Mean Squared Error
-
-        # Compile everything into a dictionary to return.
-        backtest_results = {
-            "actual": actual_values,
-            "forecasts": consensus_forecasts.tolist(),  # convert numpy array to list
-            "MAE": mae,
-            "RMSE": rmse,
-        }
-
-        return backtest_results
 

@@ -72,10 +72,10 @@ class GARCHClass:
         --------
         - Float: Forecasted standard diviation for the next period.
         """
-        if self.counter == 41:
-            self.counter = 0
-            self.estimate_order()
-        self.counter += 1
+        # if self.counter == 41:
+        #     self.counter = 0
+        #     self.estimate_order()
+        # self.counter += 1
         self.residuals = residuals
         self.model = arch_model(
             self.residuals, vol="Garch", p=self.p, q=self.q, rescale=False
