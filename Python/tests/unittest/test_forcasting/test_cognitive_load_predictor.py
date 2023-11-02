@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 from crunch.forecasting.cognitive_load_predictor import (
     CognitiveLoadPredictor,
-)  # Replace 'your_module' with the name of the module where the CognitiveLoadPredictor class is defined
+)
 
 
 class TestCognitiveLoadPredictor(unittest.TestCase):
