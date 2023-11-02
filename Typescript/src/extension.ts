@@ -103,7 +103,7 @@ export function log() {
 
   //create file path to the desktop where the data will be logged
   let today = new Date();
-  const dir = path.join(os.homedir(), "Desktop");
+  const dir = path.join(os.homedir());
   let outputPath = path.join(
     dir,
     "vsCodeOutput/vscodeData-" +
@@ -114,6 +114,7 @@ export function log() {
       ".csv"
   );
 
+  ensureDirectoryExistence(outputPath);
   //create the csv file and write the header
   if (!fs.existsSync(outputPath)) {
     fs.writeFileSync(outputPath, "time,code\n");
@@ -126,8 +127,6 @@ export function log() {
       const highlighted = editor!.document.getText();
       const now = new Date().getTime() / 1000;
       const data = `${now},"${highlighted}"\n`;
-
-      ensureDirectoryExistence(outputPath);
 
       try {
         fs.appendFileSync(outputPath, data);
