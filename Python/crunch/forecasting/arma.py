@@ -7,8 +7,14 @@ warnings.filterwarnings("ignore")
 
 
 class ARMAClass:
-    def __init__(self, data):
-        self.p, self.q = self.estimate_order(data)
+    def __init__(self, data , p=None, q=None, baseline_length=28):
+        self.p = p
+        self.q = q
+
+        # If p or q is None, estimate the order of the model
+        if self.p is None or self.q is None:
+            self.p, self.q = self.estimate_order(data, baseline_length)
+
         self.model = ARIMA(data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
         self.counter = 0
@@ -56,7 +62,6 @@ class ARMAClass:
         self.model_fit = self.model.fit()
 
         forecast = self.model_fit.forecast(steps=10)
-
         return forecast
 
     def get_residuals(self):
@@ -69,3 +74,4 @@ class ARMAClass:
             The residuals from the fitted model.
         """
         return self.model_fit.resid
+
