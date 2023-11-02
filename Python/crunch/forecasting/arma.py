@@ -7,13 +7,13 @@ warnings.filterwarnings("ignore")
 
 
 class ARMAClass:
-    def __init__(self, data , p=None, q=None, baseline_length=28):
+    def __init__(self, data, p=None, q=None, baseline_length=28):
         self.p = p
         self.q = q
 
         # If p or q is None, estimate the order of the model
         if self.p is None or self.q is None:
-            self.p, self.q = self.estimate_order(data, baseline_length)
+            self.p, self.q = self.estimate_order(data)
 
         self.model = ARIMA(data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
@@ -74,4 +74,3 @@ class ARMAClass:
             The residuals from the fitted model.
         """
         return self.model_fit.resid
-
