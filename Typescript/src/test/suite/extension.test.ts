@@ -8,13 +8,11 @@ import {
   setTimeHelpPropmtWasActivated,
   getStatusBarItem,
   updateStatusBarData,
-  log,
   setPauseNotification,
 } from "../../extension";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as assert from "assert";
-import * as fs from "fs";
 
 /**
  * Extension Test Suite.
@@ -188,26 +186,6 @@ suite("Extension Test Suite", () => {
       getStatusBarItem().text,
       "cognitive load: low",
       "Expected status bar text to be 'low'"
-    );
-  });
-
-  /**
-   * Test case for `log` function to append data to a file.
-   */
-  test("log should append data to file", () => {
-    // Arrange
-    const outputPath = "path/to/file";
-    const data = "some data";
-    const appendFileSyncStub = sandbox.stub(fs, "appendFileSync");
-
-    // Act
-    log(outputPath, data);
-
-    // Assert
-    assert.strictEqual(
-      appendFileSyncStub.calledWith(outputPath, data),
-      true,
-      "Expected data to be appended to file"
     );
   });
 });

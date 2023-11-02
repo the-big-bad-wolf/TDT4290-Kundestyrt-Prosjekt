@@ -1,9 +1,8 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import { setUp } from "./listener";
 import * as fs from "fs";
 import * as path from "path";
+import * as os from "os";
 import { RawData } from "ws";
 
 export let statusBarItem: vscode.StatusBarItem;
@@ -11,8 +10,12 @@ export let statusBarItem: vscode.StatusBarItem;
 let timeHelpPropmtWasActivated = new Date().getTime();
 let timePausePropmtWasActivated = new Date().getTime();
 
-// This method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
+  /**
+   * Function that is called when the extension is activated
+   * @param {vscode.ExtensionContext} context - the context of the extension
+   */
+
   console.log("Congratulations, your extension is now active!");
 
   const AIInitiatedHelp = vscode.commands.registerCommand(
@@ -22,6 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
       //and set up the statusbar
       setUp(true);
       setUpStatusbar();
+      log();
     },
     context.subscriptions
   );
@@ -33,36 +37,12 @@ export function activate(context: vscode.ExtensionContext) {
       //and set up the statusbar
       setUp(false);
       setUpStatusbar();
+      log();
     },
     context.subscriptions
   );
 
   context.subscriptions.push(statusBarItem);
-
-  //create file path to where the data will be logged
-  let today = new Date();
-  let outputPath = path.join(
-    __dirname,
-    "../../vsCodeOutput/vscodeData-" +
-      today.toISOString().slice(0, 10) +
-      today.getHours() +
-      today.getMinutes() +
-      today.getSeconds() +
-      ".csv"
-  );
-
-  //logs code every five seconds
-  setInterval(() => {
-    const editor = vscode.window.activeTextEditor;
-    const highlighted = editor!.document.getText();
-
-    const now = new Date().getTime() / 1000;
-    const data = `${now},"${highlighted}"\n`;
-
-    //comment this out if you dont want to log everytime you activate the extension
-    log(outputPath, data);
-  }, 5000);
-
   context.subscriptions.push(AIInitiatedHelp);
   context.subscriptions.push(UserInitiatedHelp);
 }
@@ -116,20 +96,45 @@ export function updateStatusBarData(data: RawData) {
     "cognitive load: " + outputJson["Current cognitive load"];
 }
 
-export function log(outputPath: string, data: string) {
+export function log() {
   /**
    * Logs the code of the current open file to a csv file.
-   * @param {string} outputPath - where the data should be logged
-   * @param {string} data - the data to be logged
    */
 
-  ensureDirectoryExistence(outputPath);
+  //create file path to the desktop where the data will be logged
+  let today = new Date();
+  const dir = path.join(os.homedir());
+  let outputPath = path.join(
+    dir,
+    "vsCodeOutput/vscodeData-" +
+      today.toISOString().slice(0, 10) +
+      today.getHours() +
+      today.getMinutes() +
+      today.getSeconds() +
+      ".csv"
+  );
 
-  try {
-    fs.appendFileSync(outputPath, data);
-  } catch (err) {
-    console.error(err);
+  ensureDirectoryExistence(outputPath);
+  //create the csv file and write the header
+  if (!fs.existsSync(outputPath)) {
+    fs.writeFileSync(outputPath, "time,code\n");
   }
+
+  //logs code every five seconds
+  setInterval(() => {
+    const editor = vscode.window.activeTextEditor;
+    if (editor?.document) {
+      const highlighted = editor!.document.getText();
+      const now = new Date().getTime() / 1000;
+      const data = `${now},"${highlighted}"\n`;
+
+      try {
+        fs.appendFileSync(outputPath, data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }, 5000);
 }
 
 export function ensureDirectoryExistence(filePath: string) {
@@ -137,6 +142,7 @@ export function ensureDirectoryExistence(filePath: string) {
    * Checks if the filepath exists, if not it creates the necessary folders
    * @param {string} filePath - path to where you want to create a file
    */
+
   var dirname = path.dirname(filePath);
   if (fs.existsSync(dirname)) {
     return;
@@ -146,6 +152,10 @@ export function ensureDirectoryExistence(filePath: string) {
 }
 
 export async function offerHelpNotification() {
+  /**
+   * Creates a notification to user offering to turn on copilot
+   */
+
   let now = new Date().getTime();
 
   if (now - timeHelpPropmtWasActivated > 2 * 1000) {
@@ -159,12 +169,9 @@ export async function offerHelpNotification() {
 
     if (selection === "Yes, please") {
       activateCopilotChat();
-    } else if (selection === "No, thank you") {
-      console.log("The user does not need help");
     }
   }
 }
-
 
 export function activateCopilotChat() {
   vscode.commands.executeCommand("github.copilot.interactiveEditor.explain");
@@ -172,8 +179,10 @@ export function activateCopilotChat() {
 
 export function pauseNotification() {
   /**
+   * FOR FUTURE WORK
    * Creates a notification to the user telling them they should take a break
    */
+
   let now = new Date().getTime();
 
   //only prompt if two minutes since last prompt
