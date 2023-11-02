@@ -7,8 +7,14 @@ warnings.filterwarnings("ignore")
 
 
 class ARMAClass:
-    def __init__(self, data , p=3, q=5, baseline_length=10):
-        self.p, self.q = self.estimate_order(data)
+    def __init__(self, data , p=None, q=None, baseline_length=28):
+        self.p = p
+        self.q = q
+
+        # If p or q is None, estimate the order of the model
+        if self.p is None or self.q is None:
+            self.p, self.q = self.estimate_order(data, baseline_length)
+
         self.model = ARIMA(data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
         self.counter = 0
