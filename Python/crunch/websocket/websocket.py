@@ -58,6 +58,7 @@ class WebSocketServer:
                     )
 
     async def handler(self, websocket, path, queue):
+        """Pops data from queue and sends over websocket"""
         try:
             while True:
                 data = await queue.get()

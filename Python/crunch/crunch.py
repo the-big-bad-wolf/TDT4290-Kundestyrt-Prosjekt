@@ -7,6 +7,7 @@ from crunch.eyetracker import start_eyetracker
 
 def start_processes(mobile):
     p1 = Process(target=start_empatica)
+    # Uncomment line below to start Empatica
     # p1.start()
 
     p2 = Process(target=start_eyetracker)
