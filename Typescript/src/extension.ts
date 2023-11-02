@@ -72,16 +72,17 @@ export function initializeHelpButton() {
    * Creates a button in the bottom right corner of the screen
    * that will open the copilot chat when clicked
    */
-  statusBarItem.text = `Help me!`;
+  if (statusBarItem) {
+    statusBarItem.text = `Help me!`;
+    //command to open copilot chat
+    const helpCommand = "extension.help";
+    vscode.commands.registerCommand(helpCommand, () => {
+      activateCopilotChat();
+    });
 
-  //command to open copilot chat
-  const helpCommand = "extension.help";
-  vscode.commands.registerCommand(helpCommand, () => {
-    activateCopilotChat();
-  });
-
-  //set the command for the button
-  statusBarItem.command = helpCommand;
+    //set the command for the button
+    statusBarItem.command = helpCommand;
+  }
 }
 
 export function setUpStatusbar() {
@@ -89,10 +90,12 @@ export function setUpStatusbar() {
    * Set up the initial statusbar that is displayed during the creation of the baseline
    */
 
-  statusBarItem = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right,
-    100
-  );
+  if (!statusBarItem) {
+    statusBarItem = vscode.window.createStatusBarItem(
+      vscode.StatusBarAlignment.Right,
+      100
+    );
+  }
   statusBarItem.text = `Creating baseline $(loading~spin)`;
   statusBarItem.show();
 
@@ -180,15 +183,6 @@ export function pauseNotification() {
       "You are approaching a level of stress that can be detrimental to your task. It might be time to take a break."
     );
   }
-
-  const notifier = require('node-notifier');
-  
-  const num = "Num: " + (now - timePausePropmtWasActivated );
-  notifier.notify({
-    title: 'Notification Title',
-    message: num,
-  });
-
 }
 
 //Get statusbar item. Used for testing.

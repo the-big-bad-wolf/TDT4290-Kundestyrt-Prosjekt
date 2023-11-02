@@ -15,7 +15,6 @@ import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as assert from "assert";
 import * as fs from "fs";
-import { on } from "ws";
 
 /**
  * Extension Test Suite.
@@ -49,36 +48,48 @@ suite("Extension Test Suite", () => {
   });
 
   /**
- * Test case for `pauseNotification` function when the last prompt was more than 2 minutes ago.
- */
-test("pauseNotification should show a warning message if the last prompt was more than 2 minutes ago", () => {
-  // Arrange
-  setPauseNotification(new Date().getTime() - (2 * 60 * 1000 + 1));  // set to more than 2 minutes ago
-  const showWarningMessageStub = sandbox.stub(vscode.window, "showWarningMessage");
+   * Test case for `pauseNotification` function when the last prompt was more than 2 minutes ago.
+   */
+  test("pauseNotification should show a warning message if the last prompt was more than 2 minutes ago", () => {
+    // Arrange
+    setPauseNotification(new Date().getTime() - (2 * 60 * 1000 + 1)); // set to more than 2 minutes ago
+    const showWarningMessageStub = sandbox.stub(
+      vscode.window,
+      "showWarningMessage"
+    );
 
-  // Act
-  pauseNotification();
+    // Act
+    pauseNotification();
 
-  // Assert
-  assert.strictEqual(showWarningMessageStub.called, true, "Expected a warning message to be shown");
-});
+    // Assert
+    assert.strictEqual(
+      showWarningMessageStub.called,
+      true,
+      "Expected a warning message to be shown"
+    );
+  });
 
-/**
- * Test case for `pauseNotification` function when the last prompt was less than 2 minutes ago.
- */
-test("pauseNotification should not show a warning message if the last prompt was less than 2 minutes ago", () => {
+  /**
+   * Test case for `pauseNotification` function when the last prompt was less than 2 minutes ago.
+   */
+  test("pauseNotification should not show a warning message if the last prompt was less than 2 minutes ago", () => {
+    // Arrange
+    setPauseNotification(new Date().getTime() - (2 * 60 * 1000 - 1)); // set to less than 2 minutes ago
+    const showWarningMessageStub = sandbox.stub(
+      vscode.window,
+      "showWarningMessage"
+    );
 
-  // Arrange
-  setPauseNotification(new Date().getTime() - (2 * 60 * 1000 - 1));  // set to less than 2 minutes ago
-  const showWarningMessageStub = sandbox.stub(vscode.window, "showWarningMessage");
-  
-  // Act
-  pauseNotification();
+    // Act
+    pauseNotification();
 
-  // Assert
-  assert.strictEqual(showWarningMessageStub.called, false, "Expected no warning message to be shown");
-});
-
+    // Assert
+    assert.strictEqual(
+      showWarningMessageStub.called,
+      false,
+      "Expected no warning message to be shown"
+    );
+  });
 
   /**
    * Test case for `activateCopilotChat` function to ensure it executes the correct command.
@@ -86,14 +97,18 @@ test("pauseNotification should not show a warning message if the last prompt was
   test("activateCopilotChat should execute the correct command", () => {
     // Arrange
     const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand");
-  
+
     // Act
     activateCopilotChat();
-  
+
     // Assert
-    assert.strictEqual(executeCommandStub.calledWith("github.copilot.interactiveEditor.explain"), true, "Expected Copilot command to be executed");
+    assert.strictEqual(
+      executeCommandStub.calledWith("github.copilot.interactiveEditor.explain"),
+      true,
+      "Expected Copilot command to be executed"
+    );
   });
-  
+
   /**
    * Test case for `offerHelpNotification` function to show a warning message with options.
    */
@@ -101,18 +116,33 @@ test("pauseNotification should not show a warning message if the last prompt was
     // Arrange
     const yesOption: vscode.MessageItem = { title: "Yes, please" };
     const noOption: vscode.MessageItem = { title: "No, thank you" };
-    const showWarningMessageStub = sandbox.stub(vscode.window, "showWarningMessage").resolves(yesOption);
-  
+    const showWarningMessageStub = sandbox
+      .stub(vscode.window, "showWarningMessage")
+      .resolves(yesOption);
+
     // Act
     // Set timeHelpPropmtWasActivated to more than 2 minutes ago
     setTimeHelpPropmtWasActivated(new Date().getTime() - (2 * 60 * 1000 + 1));
     await offerHelpNotification();
-  
+
     // Assert
-    assert.strictEqual(showWarningMessageStub.called, true, "Expected a warning message to be shown");
-    assert.strictEqual(showWarningMessageStub.firstCall.args[0], "Would you like help with your task?");
-    assert.deepStrictEqual(showWarningMessageStub.firstCall.args[1], yesOption.title);
-    assert.deepStrictEqual(showWarningMessageStub.firstCall.args[2], noOption.title);
+    assert.strictEqual(
+      showWarningMessageStub.called,
+      true,
+      "Expected a warning message to be shown"
+    );
+    assert.strictEqual(
+      showWarningMessageStub.firstCall.args[0],
+      "Would you like help with your task?"
+    );
+    assert.deepStrictEqual(
+      showWarningMessageStub.firstCall.args[1],
+      yesOption.title
+    );
+    assert.deepStrictEqual(
+      showWarningMessageStub.firstCall.args[2],
+      noOption.title
+    );
   });
 
   /**
@@ -121,20 +151,28 @@ test("pauseNotification should not show a warning message if the last prompt was
   test("initializeHelpButton should create and display button", () => {
     // Arrange. Initialize statusbar
     setUpStatusbar();
-    
+
     // Act
     initializeHelpButton();
 
     // Assert
-    assert.strictEqual(getStatusBarItem().text, `Help me!`, "Expected button text to be 'Help me!'");
-    assert.strictEqual(typeof getStatusBarItem().command, "string", "Expected button command to be a string");
+    assert.strictEqual(
+      getStatusBarItem().text,
+      `Help me!`,
+      "Expected button text to be 'Help me!'"
+    );
+    assert.strictEqual(
+      typeof getStatusBarItem().command,
+      "string",
+      "Expected button command to be a string"
+    );
   });
 
   test("updateStatusBarData should update status bar text with cognitive load", () => {
     //Arrange
     // Define your data as a JavaScript object
     const data = {
-      "Current cognitive load": "low"
+      "Current cognitive load": "low",
     };
     // Convert the JavaScript object to a JSON string
     const jsonData = JSON.stringify(data);
@@ -146,7 +184,11 @@ test("pauseNotification should not show a warning message if the last prompt was
     updateStatusBarData(bufferData);
 
     // Assert
-    assert.strictEqual(getStatusBarItem().text, "cognitive load: low", "Expected status bar text to be 'low'");
+    assert.strictEqual(
+      getStatusBarItem().text,
+      "cognitive load: low",
+      "Expected status bar text to be 'low'"
+    );
   });
 
   /**
@@ -162,6 +204,10 @@ test("pauseNotification should not show a warning message if the last prompt was
     log(outputPath, data);
 
     // Assert
-    assert.strictEqual(appendFileSyncStub.calledWith(outputPath, data), true, "Expected data to be appended to file");
+    assert.strictEqual(
+      appendFileSyncStub.calledWith(outputPath, data),
+      true,
+      "Expected data to be appended to file"
+    );
   });
 });
