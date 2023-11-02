@@ -36,7 +36,11 @@ Run main.py in the Python folder in order to have the extension actually show th
 
 ### Python tests
 
-In the terminal, in the python folder, run the command python -m pytest
+In the terminal, in the python folder, run the command `python -m pytest`
+
+### Typescript tests
+
+In the terminal, in the typescript folder, run the command `npm run test`.
 
 ## How to install
 
