@@ -7,12 +7,11 @@ warnings.filterwarnings("ignore")
 
 
 class ARMAClass:
-    def __init__(self, data):
+    def __init__(self, data , p=3, q=5, baseline_length=10):
         self.p, self.q = self.estimate_order(data)
         self.model = ARIMA(data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
         self.counter = 0
-        self.baselineLenght = baseline_length
         self.forecast_matrix = np.zeros((10, 10))  # 10 forecasts, 10 values each
         self.averages = []  # To store the average forecasts
 
