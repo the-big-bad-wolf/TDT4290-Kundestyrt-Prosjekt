@@ -39,6 +39,7 @@ export function setUp(AIInitiateHelp: boolean) {
         offerHelpNotification();
       }
 
+      //FOR FUTURE WORK
       /*if (JSONData["Is stressed"] == "True") {
       offerPauseNotification()
       }*/

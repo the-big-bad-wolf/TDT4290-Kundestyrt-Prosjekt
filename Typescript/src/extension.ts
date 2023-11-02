@@ -177,6 +177,7 @@ export function activateCopilotChat() {
 
 export function pauseNotification() {
   /**
+   * FOR FUTURE WORK
    * Creates a notification to the user telling them they should take a break
    */
 
