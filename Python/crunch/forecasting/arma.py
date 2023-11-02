@@ -12,8 +12,6 @@ class ARMAClass:
         self.model = ARIMA(data, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
         self.counter = 0
-        self.forecast_matrix = np.zeros((10, 10))  # 10 forecasts, 10 values each
-        self.averages = []  # To store the average forecasts
 
     def estimate_order(self, history):
         """
@@ -58,14 +56,6 @@ class ARMAClass:
         self.model_fit = self.model.fit()
 
         forecast = self.model_fit.forecast(steps=10)
-        
-        # Update the forecast matrix with the new forecast
-        self.forecast_matrix = np.roll(self.forecast_matrix, -1, axis=0)
-        self.forecast_matrix[-1, :] = forecast
-        
-        # Calculate and store the average forecast
-        average_forecast = np.mean(self.forecast_matrix, axis=0)
-        self.averages.append(average_forecast)
         return forecast
 
     def get_residuals(self):
