@@ -136,7 +136,7 @@ class EvaluateForecasting:
                                 arma_standalone_maes = []
 
                                 # Continue iterating over the data_list and updating the model
-                                for row in data_list[forecast_length:100]:
+                                for row in data_list[forecast_length:]:
                                     self.counter += 1   
                                     time, value = row  
                                     actual_value = float(value)
