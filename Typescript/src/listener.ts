@@ -18,8 +18,8 @@ export function setUp(AIInitiateHelp: boolean) {
 
   ws.on("error", console.error);
 
-  ws.on("open", function open() {
-    ws.send("something");
+  ws.on('open', function open() {
+    ws.send("something"); // Make sure this is a string
   });
 
   ws.on("message", function message(data) {
