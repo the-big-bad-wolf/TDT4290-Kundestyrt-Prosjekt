@@ -8,3 +8,5 @@ Typescript/node_modules
 Typescript/out
 vsCodeOutput
 .pytest_cache
+.vscode-test
+.nyc_output

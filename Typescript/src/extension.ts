@@ -4,8 +4,9 @@ import * as vscode from "vscode";
 import { setUp } from "./listener";
 import * as fs from "fs";
 import * as path from "path";
+import { RawData } from "ws";
 
-let statusBarItem: vscode.StatusBarItem;
+export let statusBarItem: vscode.StatusBarItem;
 
 let timeHelpPropmtWasActivated = new Date().getTime();
 let timePausePropmtWasActivated = new Date().getTime();
@@ -14,23 +15,24 @@ let timePausePropmtWasActivated = new Date().getTime();
 export function activate(context: vscode.ExtensionContext) {
   console.log("Congratulations, your extension is now active!");
 
-  const disposable = vscode.commands.registerCommand(
-    "extension.showData",
+  const AIInitiatedHelp = vscode.commands.registerCommand(
+    "extension.AIInitiatedHelp",
     () => {
-      // The code you place here will be executed every time your command is executed
-      // Display a message box to the user
-      setUp();
+      //call the setup of the websocket telling it that it should use the AI initiated help,
+      //and set up the statusbar
+      setUp(true);
+      setUpStatusbar();
+    },
+    context.subscriptions
+  );
 
-      statusBarItem = vscode.window.createStatusBarItem(
-        vscode.StatusBarAlignment.Right,
-        100
-      );
-      statusBarItem.text = `Creating baseline $(loading~spin)`;
-      statusBarItem.show();
-
-      vscode.window.showInformationMessage(
-        "Will now begin to create a baseline, just relax for a couple of minutes"
-      );
+  const UserInitiatedHelp = vscode.commands.registerCommand(
+    "extension.UserInitiatedHelp",
+    () => {
+      //call the setup of the websocket telling it that it should not use the AI initiated help,
+      //and set up the statusbar
+      setUp(false);
+      setUpStatusbar();
     },
     context.subscriptions
   );
@@ -61,7 +63,8 @@ export function activate(context: vscode.ExtensionContext) {
     log(outputPath, data);
   }, 5000);
 
-  context.subscriptions.push(disposable);
+  context.subscriptions.push(AIInitiatedHelp);
+  context.subscriptions.push(UserInitiatedHelp);
 }
 
 export function initializeHelpButton() {
@@ -69,19 +72,51 @@ export function initializeHelpButton() {
    * Creates a button in the bottom right corner of the screen
    * that will open the copilot chat when clicked
    */
-  statusBarItem.text = `Help me!`;
+  if (statusBarItem) {
+    statusBarItem.text = `Help me!`;
+    //command to open copilot chat
+    const helpCommand = "extension.help";
+    vscode.commands.registerCommand(helpCommand, () => {
+      activateCopilotChat();
+    });
 
-  //command to open copilot chat
-  const helpCommand = "extension.help";
-  vscode.commands.registerCommand(helpCommand, () => {
-    activateCopilotChat();
-  });
-
-  //set the command for the button
-  statusBarItem.command = helpCommand;
+    //set the command for the button
+    statusBarItem.command = helpCommand;
+  }
 }
 
-function log(outputPath: string, data: string) {
+export function setUpStatusbar() {
+  /**
+   * Set up the initial statusbar that is displayed during the creation of the baseline
+   */
+
+  if (!statusBarItem) {
+    statusBarItem = vscode.window.createStatusBarItem(
+      vscode.StatusBarAlignment.Right,
+      100
+    );
+  }
+  statusBarItem.text = `Creating baseline $(loading~spin)`;
+  statusBarItem.show();
+
+  vscode.window.showInformationMessage(
+    "Will now begin to create a baseline, just relax for a couple of minutes"
+  );
+}
+
+export function updateStatusBarData(data: RawData) {
+  /**
+   * updates the statusbar with the received data
+   * @param {RawData} data - the data to be displayed in statusbar
+   */
+
+  let outputJson = JSON.parse(data.toString());
+
+  statusBarItem.text =
+    "cognitive load: " + outputJson["Current cognitive load"];
+}
+
+export function log(outputPath: string, data: string) {
   /**
    * Logs the code of the current open file to a csv file.
    * @param {string} outputPath - where the data should be logged
@@ -97,7 +132,7 @@ function log(outputPath: string, data: string) {
   }
 }
 
-function ensureDirectoryExistence(filePath: string) {
+export function ensureDirectoryExistence(filePath: string) {
   /**
    * Checks if the filepath exists, if not it creates the necessary folders
    * @param {string} filePath - path to where you want to create a file
@@ -111,13 +146,9 @@ function ensureDirectoryExistence(filePath: string) {
 }
 
 export async function offerHelpNotification() {
-  /**
-   * Creates a notification to user offering to turn on copilot
-   */
   let now = new Date().getTime();
 
-  //only prompt if it is five minutes since last promt
-  if (now - timeHelpPropmtWasActivated > 5 * 60 * 1000) {
+  if (now - timeHelpPropmtWasActivated > 2 * 1000) {
     timeHelpPropmtWasActivated = now;
 
     const selection = await vscode.window.showWarningMessage(
@@ -133,6 +164,7 @@ export async function offerHelpNotification() {
     }
   }
 }
+
 
 export function activateCopilotChat() {
   vscode.commands.executeCommand("github.copilot.interactiveEditor.explain");
@@ -151,6 +183,26 @@ export function pauseNotification() {
       "You are approaching a level of stress that can be detrimental to your task. It might be time to take a break."
     );
   }
+}
+
+//Get statusbar item. Used for testing.
+export function getStatusBarItem() {
+  return statusBarItem;
+}
+
+// Set Pause Notification. Used for testing.
+export function setPauseNotification(input: number) {
+  timePausePropmtWasActivated = input;
+}
+
+// Set Time Help Prompt. Used for testing.
+export function setTimeHelpPropmtWasActivated(time: number) {
+  timeHelpPropmtWasActivated = time;
+}
+
+// Set statusBarItem. Used for testing.
+export function setStatusBarItem(statusBarItem: vscode.StatusBarItem) {
+  statusBarItem = statusBarItem;
 }
 
 // This method is called when your extension is deactivated

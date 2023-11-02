@@ -18,7 +18,7 @@ class WebSocketServer:
         if not os.path.exists("crunch/output"):
             os.makedirs("crunch/output")
 
-        baseline_items = 30
+        baseline_items = int(util.config("websocket", "baseline_items"))
 
         async for changes in awatch("./crunch/output/"):
             for a in changes:
@@ -26,22 +26,34 @@ class WebSocketServer:
                 df = pd.read_csv(file_path)
 
                 # If the predictor hasn't been instantiated yet, do it now
-                if self.predictor is None and len(df.index) + 1 >= baseline_items:
+                if self.predictor is None and len(df.index) >= baseline_items:
                     self.predictor = CognitiveLoadPredictor(
                         df.iloc[:baseline_items, 1].values.astype(float)
                     )
+                    forecast = self.predictor.current_forecast
+                    is_outlier = self.predictor.is_outlier
+                    # put it in the queue so the web socket can read
+                    await queue.put(
+                        {
+                            "Current cognitive load": str(df.iloc[-1, 1].astype(float)),
+                            "Forecasted cognitive load": str(forecast),
+                            "Need help": str(is_outlier),
+                        }
+                    )
 
                 # If the predictor has been instantiated, update and predict
-                if self.predictor:
+                elif self.predictor:
                     new_value = df.iloc[-1, 1].astype(float)
-                    forecast, need_help = self.predictor.update_and_predict(new_value)
+                    self.predictor.update_and_predict(new_value)
+                    forecast = self.predictor.current_forecast
+                    is_outlier = self.predictor.is_outlier
 
                     # put it in the queue so the web socket can read
                     await queue.put(
                         {
                             "Current cognitive load": str(df.iloc[-1, 1].astype(float)),
                             "Forecasted cognitive load": str(forecast),
-                            "Need help": str(need_help),
+                            "Need help": str(is_outlier),
                         }
                     )
 
@@ -66,7 +78,6 @@ class WebSocketServer:
         port = int(util.config("websocket", "port"))
 
         print("##################################################################")
-        print("###### Paste the websocket ip on the frontend to connect")
         print("###### IP: ", ip)
         print("###### Port: ", port)
         print("##################################################################")
