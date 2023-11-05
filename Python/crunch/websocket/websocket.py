@@ -4,7 +4,7 @@ import json
 import os
 import socket
 import pandas as pd
-from crunch.forecasting.cognitive_load_predictor import CognitiveLoadPredictor
+from crunch.forecasting.predictor import Predictor
 import websockets
 from watchgod import awatch
 import crunch.util as util
@@ -14,25 +14,27 @@ class WebSocketServer:
     def __init__(self):
         self.predictor = None
 
+        # Number of entries used to calculate baseline
+        self.baseline_items = int(util.config("websocket", "baseline_items"))
+
     async def watcher(self, queue):
         if not os.path.exists("crunch/output"):
             os.makedirs("crunch/output")
-
-        baseline_items = int(util.config("websocket", "baseline_items"))
 
         async for changes in awatch("./crunch/output/"):
             for a in changes:
                 file_path = a[1]
                 df = pd.read_csv(file_path)
 
-                # If the predictor hasn't been instantiated yet, do it now
-                if self.predictor is None and len(df.index) >= baseline_items:
-                    self.predictor = CognitiveLoadPredictor(
-                        df.iloc[:baseline_items, 1].values.astype(float)
+                # Instantiate predictor when there are enough entries to create baseline, and create the initial forecast
+                if self.predictor is None and len(df.index) >= self.baseline_items:
+                    self.predictor = Predictor(
+                        df.iloc[: self.baseline_items, 1].values.astype(float)
                     )
                     forecast = self.predictor.current_forecast
                     is_outlier = self.predictor.is_outlier
-                    # put it in the queue so the web socket can read
+
+                    # Put data in the queue so the websocket can read and send to client
                     await queue.put(
                         {
                             "Current cognitive load": str(df.iloc[-1, 1].astype(float)),
@@ -41,14 +43,14 @@ class WebSocketServer:
                         }
                     )
 
-                # If the predictor has been instantiated, update and predict
+                # If the predictor has been instantiated, send the newly inserted value to the predictor to update forecast
                 elif self.predictor:
                     new_value = df.iloc[-1, 1].astype(float)
                     self.predictor.update_and_predict(new_value)
                     forecast = self.predictor.current_forecast
                     is_outlier = self.predictor.is_outlier
 
-                    # put it in the queue so the web socket can read
+                    # Put data in the queue so the websocket can read and send to client
                     await queue.put(
                         {
                             "Current cognitive load": str(df.iloc[-1, 1].astype(float)),

@@ -8,8 +8,6 @@ class GARCHClass:
 
     Attributes:
     -----------
-    data : np.ndarray
-        Time series data.
     p : int
         Lag order for the autoregressive component.
     q : int
@@ -20,72 +18,66 @@ class GARCHClass:
         Fitted GARCH model.
     """
 
-    def __init__(self, residuals, p=None, q=None):
+    def __init__(self, history, p=None, q=None, forecast_length=10):
         """
         Initialize the GARCH model.
 
         Parameters:
         -----------
-        data : np.ndarray
-            Standardized time series data.
+        residuals : np.ndarray
+            residuals from the ARMA model.
         """
-        self.residuals = residuals
-        self.p= p
-        self.q = q 
-        if self.p is None or self.q is None:
-            self.p, self.q = self.estimate_order()
-            
-        self.model = arch_model(
-            self.residuals, vol="Garch", p=self.p, q=self.q, rescale=False
-        )
-        self.model_fit = self.model.fit(disp="off")
+        self.forecast_length = forecast_length
+
+        # If p or q is None, estimate the order of the model
+        if p is None or q is None:
+            self.p, self.q = self.estimate_order(history)
+        else:
+            self.p = p
+            self.q = q
+
+        # Counter used to re-estimate p and q every 41st iteration
         self.counter = 0
 
-    def estimate_order(self):
+    def estimate_order(self, history):
         """
-        Estimate the order (p, q) for the GARCH model based on AIC.
+        Estimate the order (p, q) for the GARCH model based on AIC, Akaike information criterion
+        https://en.wikipedia.org/wiki/Akaike_information_criterion
 
         Returns:
         --------
-        tuple
-            Best order (p, q) based on AIC.
+        - tuple: Best order (p, q) based on AIC.
         """
         best_aic = np.inf
         best_order = None
 
         for p in range(2, 6):
             for q in range(2, 6):
-                model = arch_model(self.residuals, vol="Garch", p=p, q=q, rescale=False)
-                results = model.fit(disp="off")
-                if results.aic < best_aic:
-                    best_aic = results.aic
+                model = arch_model(history, vol="Garch", p=p, q=q, rescale=False)
+                model_fit = model.fit(disp="off")
+                if model_fit.aic < best_aic:
+                    best_aic = model_fit.aic
                     best_order = (p, q)
-
+        print(f"Best order GARCH: {best_order}")
         return best_order
 
-    def update_and_predict(self, residuals):
+    def update_and_predict(self, history):
         """
-        Update the model with a new observation and forecast the next value's volatility.
+        Make forecast of next [forecast_length] observations based on history.
 
         Parameters:
-        -----------
-        new_data : float
-            New observation.
+        - history (np.list): The historical values used to make forecast.
 
         Returns:
-        --------
-        - Float: Forecasted standard diviation for the next period.
+        - forecast: The array of forecasted cognitive load values.
         """
         if self.counter == 41:
             self.counter = 0
-            self.estimate_order()
+            self.estimate_order(history)
         self.counter += 1
-        self.residuals = residuals
-        self.model = arch_model(
-            self.residuals, vol="Garch", p=self.p, q=self.q, rescale=False
-        )
-        self.model_fit = self.model.fit(disp="off")
+        model = arch_model(history, vol="Garch", p=self.p, q=self.q, rescale=False)
+        model_fit = model.fit(disp="off")
 
-        forecasts = self.model_fit.forecast(horizon=10)
+        forecasts = model_fit.forecast(horizon=self.forecast_length)
 
         return forecasts.mean["h.01"].iloc[-1]

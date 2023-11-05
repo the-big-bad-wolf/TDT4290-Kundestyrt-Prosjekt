@@ -17,7 +17,7 @@ class Plotting:
         # Reset the plot
         self.ax.clear()
 
-        # Plot the data
+        # Plot the observations
         self.ax.plot(observations, label="Observed Value", color="blue")
 
         # Plot the historical average forecast
@@ -27,7 +27,7 @@ class Plotting:
             color="purple",
             linestyle=":",
         )
-        # Plot the new value
+        # Mark the newest observation
         self.ax.scatter(
             len(observations) - 1,
             observations[-1],
@@ -47,8 +47,8 @@ class Plotting:
             label="Forecast",
             linestyle="--",
         )
-        self.ax.set_ylim(-2, 2)
 
+        self.ax.set_ylim(-2, 2)
         self.ax.set_title("Cognitive Load Data and Forecast")
         self.ax.set_xlabel("Observation Nr.")
         self.ax.set_ylabel("Z-Score")
@@ -67,6 +67,7 @@ class Plotting:
         plt.pause(0.5)  # Add minor delay to plotting
 
     def plot_error(self, errors, number_of_observations):
+        """Function for plotting the errors of the average forecast vs the actually observed value."""
         self.mse_ax.clear()
 
         x_values = np.arange(

@@ -7,16 +7,19 @@ warnings.filterwarnings("ignore")
 
 
 class ARMAClass:
-    def __init__(self, data, p=None, q=None, baseline_length=28):
-        self.p = p
-        self.q = q
+    def __init__(self, history, p=None, q=None, forecast_length=10):
+        self.forecast_length = forecast_length
 
         # If p or q is None, estimate the order of the model
-        if self.p is None or self.q is None:
-            self.p, self.q = self.estimate_order(data)
+        if p is None or q is None:
+            self.p, self.q = self.estimate_order(history)
+        else:
+            self.p = p
+            self.q = q
 
-        self.model = ARIMA(data, order=(self.p, 0, self.q))
+        self.model = ARIMA(history, order=(self.p, 0, self.q))
         self.model_fit = self.model.fit()
+        # Counter used to re-estimate p and q every 41st iteration
         self.counter = 0
 
     def estimate_order(self, history):
@@ -24,7 +27,7 @@ class ARMAClass:
         Estimates the AR and MA order (p and q) for the ARIMA model based on AIC, Akaike information criterion
         https://en.wikipedia.org/wiki/Akaike_information_criterion
         Returns:
-        - tuple: A tuple containing the estimated p and q values.
+        - tuple: Best order (p, q) based on AIC.
         """
         best_aic = np.inf
         best_order = None
@@ -40,12 +43,12 @@ class ARMAClass:
                         best_order = (p, q)
                 except:
                     continue
-        print(f"Best order: {best_order}")
+        print(f"Best order ARMA: {best_order}")
         return best_order
 
     def update_and_predict(self, history):
         """
-        Updates the model with a new cognitive load value and predicts the next value.
+        Make forecast of next [forecast_length] observations based on history.
 
         Parameters:
         - history (np.list): The historical values used to make forecast.
@@ -58,10 +61,10 @@ class ARMAClass:
             self.counter = 0
             self.estimate_order(history)
         self.counter += 1
-        self.model = ARIMA(history, order=(self.p, 0, self.q))
-        self.model_fit = self.model.fit()
+        model = ARIMA(history, order=(self.p, 0, self.q))
+        self.model_fit = model.fit()
 
-        forecast = self.model_fit.forecast(steps=10)
+        forecast = self.model_fit.forecast(steps=self.forecast_length)
         return forecast
 
     def get_residuals(self):
