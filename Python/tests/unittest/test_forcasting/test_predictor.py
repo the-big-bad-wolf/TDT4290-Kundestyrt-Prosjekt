@@ -1,11 +1,11 @@
 import unittest
 import numpy as np
-from crunch.forecasting.cognitive_load_predictor import (
-    CognitiveLoadPredictor,
+from crunch.forecasting.predictor import (
+    Predictor,
 )
 
 
-class TestCognitiveLoadPredictor(unittest.TestCase):
+class TestPredictor(unittest.TestCase):
     """
     Test if the update_and_predict method correctly updates the standardized_data attribute and the current_forecast attribute.
     """
@@ -37,7 +37,7 @@ class TestCognitiveLoadPredictor(unittest.TestCase):
         )
 
         # Initialize the CognitiveLoadPredictor with the initial data
-        predictor = CognitiveLoadPredictor(initial_data)
+        predictor = Predictor(initial_data)
 
         # New observation
         new_observation = 3.5

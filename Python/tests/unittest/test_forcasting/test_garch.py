@@ -18,7 +18,7 @@ class TestGARCHClass(unittest.TestCase):
         """
         residuals = np.random.randn(100)
         garch = GARCHClass(residuals)
-        p, q = garch.estimate_order()
+        p, q = garch.estimate_order(residuals)
         self.assertIsInstance(p, int)
         self.assertIsInstance(q, int)
         self.assertTrue(2 <= p <= 5)
