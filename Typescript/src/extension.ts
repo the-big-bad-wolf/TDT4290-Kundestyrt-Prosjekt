@@ -158,7 +158,7 @@ export async function offerHelpNotification() {
 
   let now = new Date().getTime();
 
-  if (now - timeHelpPropmtWasActivated > 2 * 1000) {
+  if (now - timeHelpPropmtWasActivated > 2 * 60 * 1000) {
     timeHelpPropmtWasActivated = now;
 
     const selection = await vscode.window.showWarningMessage(
