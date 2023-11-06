@@ -26,11 +26,19 @@ Repository for TDT4290 Customer Driven Project - Group 4 - 2023
 
 ## How to run
 
-To activate the extension, press f5 while being in a typescript file, or run the command "Debug: Start Debugging". If you need to develop the extension, you have to open a new window from the Typescript folder, and run the extension from this window.
+You need to start the Python backend before you activate the VSCode extension. To start the eyetracker and start calculating and forecasting your cognitive load, simply run "main.py" in the "Python" folder.
 
-After activation, in the window the extension is running in, press ctrl + shift + p in windows, cmd + shift + p on mac, type, then run, AI Initiated Help if you want to run with the system promting the user, or User Initiated Help if you want to run with a help button for the user to push to get help. This should activate the statusbar and give a notification that the extension is calculating a baseline.
+To use the VSCode extension you can either open the project in VSCode and run it, or you can install the extension with the provided "extension-0.0.1.vsix" file.
 
-Run main.py in the Python folder in order to have the extension actually show the cognitive load and trigger the notifications to toggle copilot. Receiving data requires the eyetracker.
+1. To run the extension directly from the project files, you first need to open the "Typescript" folder as root in VSCode so that VSCode will detect the config files and automatically compile the extension when you run it. After you have opened "Typescript" folder open /src/extension.ts. Then you can run the command "Start Debugging" or "Run Without Debugging" by either pressing f5 or ctrl+f5 respectively, or by clicking "Run" in VSCode and selecting the command. This will open a new window where the extension is installed.
+
+2. To install the extension with the provided "extension-0.0.1.vsix" file, go to the extension view, and click on the three dots in the right upper corner. Chose to install as vsix, and locate the vsix file on your computer. Alternatively, in the terminal, run the command
+```
+code--install-extension path\extension-0.0.1.vsix
+```
+
+After the extension is installed, open the command palette by pressing ctrl+shift+p in windows or cmd+shift+p on mac, and type "AI Initiated Help" if you want the system to prompt the user when cognitive load is too high or low, or "User Initiated Help" if you want a help button that the user can click themselves to get help. This will activate the extension and display a notification that the extension is calculating a baseline. When the baseline has been calculated, your cognitive load or a help button should be displayed in the status bar, depending on whether you selected AI or user initiated help. If you have selected "AI Initiated Help" and your observed or forecasted cognitive load is two standard deviations or more from the baseline mean, you should get a pop-up in VSCode asking whether you want help, and if you click yes GitHub Copilot should automatically explain the file you are currently located in. If you have selected "User Initiated Help" the "Help me!" button should get GitHub Copilot to explain the file you are located in like for the AI initiated help.
+
 
 ## How to run tests
 
@@ -41,17 +49,3 @@ In the terminal, in the python folder, run the command `python -m pytest`
 ### Typescript tests
 
 In the terminal, in the typescript folder, run the command `npm run test`.
-
-## How to install
-
-Clone the repo, or otherwise download the extension-0.0.1.vsix file. In VSCode, go to the extension view, and click on the three dots in the right upper corner. Chose to install as vsix, and locate the vsix file on your computer. Alternatively, in the terminal, run the command
-
-```
-code--install-extension path\extension-0.0.1.vsix
-```
-
-where path is the path to where the vsix file is on your computer.
-
-You still need to be running the backend in the same way as in the section above to get the data from the eye-tracker.
-
-When the extension is installed, it works as any other extension, and you can run the commands from the section "How to run".
