@@ -33,7 +33,7 @@ pip install -r requirements.txt
 
 To use the VSCode extension you can either open the project in VSCode and run it, or you can install the extension with the provided "extension-0.0.1.vsix" file.
 
-1. To run the extension directly from the project files, you first need to open the "Typescript" folder as root in VSCode so that VSCode will detect the config files and automatically compile the extension when you run it. Then you have to install the project dependencies with the command "npm install". Then open /src/extension.ts. Then you can run the command "Start Debugging" or "Run Without Debugging" by either pressing f5 or ctrl+f5 respectively, or by clicking "Run" in VSCode and selecting the command. This will open a new window where the extension is installed.
+1. To run the extension directly from the project files, you first need to open the "Typescript" folder as root in VSCode so that VSCode will detect the config files and automatically compile the extension when you run it. Then you have to install the project dependencies with the command `npm install`. Then open /src/extension.ts. Then you can run the command "Start Debugging" or "Run Without Debugging" by either pressing f5 or ctrl+f5 respectively, or by clicking "Run" in VSCode and selecting the command. This will open a new window where the extension is installed.
 
 2. To install the extension with the provided "extension-0.0.1.vsix" file, go to the extension view, and click on the three dots in the right upper corner. Chose to install as vsix, and locate the vsix file on your computer. Alternatively, in the terminal, run the following command:
 ```
