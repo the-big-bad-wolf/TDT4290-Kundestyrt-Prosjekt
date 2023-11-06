@@ -12,10 +12,6 @@ class GARCHClass:
         Lag order for the autoregressive component.
     q : int
         Lag order for the moving average component.
-    model : arch_model
-        GARCH model instance.
-    model_fit : ARCHModelResult
-        Fitted GARCH model.
     """
 
     def __init__(self, history, p=None, q=None, forecast_length=10):
@@ -79,5 +75,4 @@ class GARCHClass:
         model_fit = model.fit(disp="off")
 
         forecasts = model_fit.forecast(horizon=self.forecast_length)
-
         return forecasts.mean["h.01"].iloc[-1]
