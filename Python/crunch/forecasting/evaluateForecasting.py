@@ -4,6 +4,7 @@ from arma import ARMAClass
 from garch import GARCHClass
 
 
+# This file is a script we have used to evaluate different values of p and q. It is not used in the final product.
 class EvaluateForecasting:
     def __init__(self):
         """
