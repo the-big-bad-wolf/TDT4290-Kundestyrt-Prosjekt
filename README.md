@@ -25,7 +25,7 @@ Repository for TDT4290 Customer Driven Project - Group 4 - 2023
 | Kshitij Sharma |
 
 ## How to run
-Before you start you need to have Python and Node.js installed on your machine.
+Before you start you need to have Python 3.10 and Node.js installed on your machine.
 
 You need to start the Python backend before you activate the VSCode extension. To start the eyetracker and start calculating and forecasting your cognitive load, simply run "main.py" in the "Python" folder. First time you run the program you will have to install the dependencies with the following command:
 ```
