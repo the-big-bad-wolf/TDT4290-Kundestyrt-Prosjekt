@@ -53,3 +53,7 @@ In the terminal, in the python folder, run the command `python -m pytest`
 ### Typescript tests
 
 In the terminal, in the typescript folder, run the command `npm run test`.
+
+## Parameters
+
+In the backend there is a setup.cfg file where you can change parameters such as how far into the future to forecast, how many observations used to create a baseline and how many historical observations used to create forecasting model.
