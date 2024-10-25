@@ -1,29 +1,3 @@
-# TDT4290-Kundestyrt-Prosjekt
-
-Repository for TDT4290 Customer Driven Project - Group 4 - 2023
-
-## Team members
-
-| Name                          |
-| ----------------------------- |
-| Bjørn Eirik Melaaen           |
-| Elisabeth Krogstad Iversen    |
-| Haakon Liu Selnes             |
-| Mikkel Andreas Ask Guttormsen |
-| Synne Frafjord Moe            |
-
-## Supervisor
-
-| Name              |
-| ----------------- |
-| Isabella Possaghi |
-
-## Customer
-
-| Name           |
-| -------------- |
-| Kshitij Sharma |
-
 ## How to run
 Before you start you need to have Python 3.10 and Node.js installed on your machine. You also need to have installed the "Github Copilot" and "Github Copilot Chat" VSCode extensions and an active Copilot license on your Github account. You also need have connected an eye-tracker capable of detecting pupil diameters that is also compatible with the Tobii Pro SDK. A list of compatible devices can be found here: https://developer.tobiipro.com/tobiiprosdk/supportedeyetrackers.html. For instructions regarding driver installation for your Tobii eye-tracker, see documentation for your device at https://connect.tobii.com/.
 
